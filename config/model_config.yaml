@@ -1,0 +1,25 @@
+model:
+  name: cre_expected_loss
+  version: 0.1.0-development
+  intended_use: economic_expected_loss
+  grain: loan_property_quarter
+  interval: quarterly
+  approval_status: proposed_not_approved
+
+pd:
+  method: discrete_time_hazard
+  probability_tolerance: 1.0e-12
+
+lgd:
+  method: discounted_workout
+  annual_discount_rate: null  # Open decision; must be approved before use.
+  output_floor: null
+  output_cap: null
+
+ead:
+  method: contractual_projection
+  include_accrued_interest: false
+
+aggregation:
+  reconciliation_tolerance: 1.0e-8
+

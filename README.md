@@ -5,6 +5,12 @@ framework covering Probability of Default (PD), Loss Given Default (LGD),
 Exposure at Default (EAD), scenarios, validation, and ongoing performance
 assessment.
 
+The repository now also contains the first development implementation slice:
+validated PD term structures, discounted workout LGD, contractual EAD,
+scenario controls, expected-loss aggregation, transparent CRE features, and
+DuckDB/Parquet ingestion utilities. These are development components, not a
+fitted, validated, or approved model.
+
 ## Current contents
 
 - `docs/CRE_Expected_Loss_Model_Design.docx` — overarching model governance and
@@ -19,6 +25,21 @@ assessment.
   on pushes and pull requests.
 - `docs/model_development/` — proposed development specification, data
   dictionary, methodology candidates, and objective acceptance gates.
+- `src/cre_expected_loss/` — reusable model-development calculations and data
+  interfaces.
+- `config/` — proposed model and scenario configuration.
+- `tests/` — document, mathematical, contract, boundary, and integration tests.
+- `data/raw`, `data/interim`, `data/processed` — ignored local data layers;
+  only directory placeholders are versioned.
+
+## Developer setup
+
+```powershell
+python -m venv .venv
+./.venv/Scripts/Activate.ps1
+python -m pip install --editable ".[development,modeling]"
+python -m unittest discover -s tests -p "test_*.py" -v
+```
 - `docs/prompts/CRE_PROJECT_META_PROMPT.md` — durable lifecycle instructions for
   future design, coding, validation, monitoring, and documentation work.
 - `docs/prompts/tasks/` — focused templates for model development, validation,

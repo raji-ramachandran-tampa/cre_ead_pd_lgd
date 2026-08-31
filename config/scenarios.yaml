@@ -1,0 +1,13 @@
+scenarios:
+  - id: baseline
+    weight: 0.60
+    status: proposed
+  - id: adverse
+    weight: 0.30
+    status: proposed
+  - id: severe
+    weight: 0.10
+    status: proposed
+
+# Weights are illustrative development configuration, not approved scenarios.
+

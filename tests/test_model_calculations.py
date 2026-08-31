@@ -1,0 +1,131 @@
+"""Unit tests for the first expected-loss implementation slice."""
+
+import math
+import importlib.util
+import sys
+import tempfile
+import unittest
+from datetime import date
+from pathlib import Path
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from cre_expected_loss.aggregation import (  # noqa: E402
+    ExpectedLossRow,
+    aggregate_scenario_weighted_loss,
+    calculate_expected_loss,
+)
+from cre_expected_loss.features import (  # noqa: E402
+    debt_service_coverage_ratio,
+    loan_to_value,
+    valuation_age_days,
+)
+from cre_expected_loss.models import (  # noqa: E402
+    WorkoutCashFlow,
+    discounted_workout_lgd,
+    hazards_to_term_structure,
+    project_contractual_ead,
+)
+from cre_expected_loss.scenarios import validate_scenario_weights  # noqa: E402
+from cre_expected_loss.validation import assert_unique_keys  # noqa: E402
+from cre_expected_loss.ingestion import csv_to_parquet  # noqa: E402
+
+
+class PDTermStructureTest(unittest.TestCase):
+    def test_hazards_reconcile_to_survival_and_cumulative_pd(self) -> None:
+        result = hazards_to_term_structure([0.10, 0.20, 0.25])
+        for actual, expected in zip(result.marginal_pd, (0.10, 0.18, 0.18), strict=True):
+            self.assertAlmostEqual(actual, expected)
+        for actual, expected in zip(result.survival, (0.90, 0.72, 0.54), strict=True):
+            self.assertAlmostEqual(actual, expected)
+        for actual, expected in zip(result.cumulative_pd, (0.10, 0.28, 0.46), strict=True):
+            self.assertAlmostEqual(actual, expected)
+        self.assertAlmostEqual(result.cumulative_pd[-1] + result.survival[-1], 1.0)
+
+    def test_invalid_hazards_fail_explicitly(self) -> None:
+        for hazards in ([], [-0.1], [1.1], [math.nan]):
+            with self.subTest(hazards=hazards), self.assertRaises(ValueError):
+                hazards_to_term_structure(hazards)
+
+
+class LGDTest(unittest.TestCase):
+    def test_discounted_workout_lgd(self) -> None:
+        cash_flows = [
+            WorkoutCashFlow(60.0, 1.0, "recovery"),
+            WorkoutCashFlow(10.0, 1.0, "cost"),
+        ]
+        self.assertAlmostEqual(discounted_workout_lgd(100.0, cash_flows, 0.10), 6 / 11)
+
+    def test_raw_lgd_is_not_silently_capped(self) -> None:
+        result = discounted_workout_lgd(
+            100.0, [WorkoutCashFlow(20.0, 0.0, "cost")], 0.0
+        )
+        self.assertEqual(result, 1.2)
+
+
+class EADTest(unittest.TestCase):
+    def test_contractual_projection_reconciles_payments_and_draws(self) -> None:
+        self.assertEqual(
+            project_contractual_ead(100.0, [10.0, 20.0, 70.0], [5.0, 0.0, 0.0]),
+            (95.0, 75.0, 5.0),
+        )
+
+    def test_commitment_limit_is_enforced(self) -> None:
+        with self.assertRaises(ValueError):
+            project_contractual_ead(90.0, [0.0], [20.0], commitment_limit=100.0)
+
+
+class AggregationTest(unittest.TestCase):
+    def test_expected_loss_identity_and_grain_are_preserved(self) -> None:
+        row = ExpectedLossRow("L1", "P1", 1, "baseline", 0.02, 0.40, 1_000.0, 0.95)
+        result = calculate_expected_loss([row])[0]
+        self.assertAlmostEqual(result["expected_loss"], 7.6)
+        self.assertEqual(result["scenario_id"], "baseline")
+
+    def test_scenario_weighted_loss_uses_validated_weights(self) -> None:
+        rows = [
+            ExpectedLossRow("L1", "P1", 1, "baseline", 0.01, 0.5, 100.0),
+            ExpectedLossRow("L1", "P1", 1, "adverse", 0.03, 0.5, 100.0),
+        ]
+        self.assertAlmostEqual(
+            aggregate_scenario_weighted_loss(rows, {"baseline": 0.75, "adverse": 0.25}),
+            0.75,
+        )
+
+    def test_invalid_expected_loss_inputs_fail(self) -> None:
+        with self.assertRaises(ValueError):
+            ExpectedLossRow("L1", "P1", 1, "baseline", 1.1, 0.4, 100.0).expected_loss
+
+
+class ContractAndFeatureTest(unittest.TestCase):
+    def test_scenario_weights(self) -> None:
+        validate_scenario_weights({"baseline": 0.6, "adverse": 0.4})
+        with self.assertRaises(ValueError):
+            validate_scenario_weights({"baseline": 0.7, "adverse": 0.4})
+
+    def test_unique_composite_keys(self) -> None:
+        rows = [{"loan_id": "L1", "property_id": "P1", "as_of": "2026-06-30"}]
+        assert_unique_keys(rows, ("loan_id", "property_id", "as_of"))
+        with self.assertRaises(ValueError):
+            assert_unique_keys(rows + rows, ("loan_id", "property_id", "as_of"))
+
+    def test_transparent_features(self) -> None:
+        self.assertEqual(loan_to_value(80.0, 100.0), 0.8)
+        self.assertEqual(debt_service_coverage_ratio(125.0, 100.0), 1.25)
+        self.assertEqual(valuation_age_days(date(2026, 1, 1), date(2026, 1, 31)), 30)
+
+
+@unittest.skipUnless(importlib.util.find_spec("duckdb"), "DuckDB is not installed")
+class DuckDBIntegrationTest(unittest.TestCase):
+    def test_csv_snapshot_converts_to_parquet(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "sample.csv"
+            output = Path(directory) / "sample.parquet"
+            source.write_text("loan_id,balance\nL1,100\n", encoding="utf-8")
+            self.assertEqual(csv_to_parquet(source, output), output)
+            self.assertTrue(output.is_file())
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

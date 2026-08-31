@@ -1,4 +1,4 @@
-name: Document tests
+name: Repository tests
 
 on:
   push:
@@ -24,6 +24,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes pandoc
 
+      - name: Install project
+        run: python -m pip install --editable .
+
       - name: Run document tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
-
