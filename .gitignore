@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Word temporary files
+~$*
+
+# Generated document QA artifacts
+docs/qa_*/
+docs/a11y_*.json
+
+# Local data and databases
+data/raw/*
+data/interim/*
+data/processed/*
+*.duckdb
+*.duckdb.wal
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
