@@ -1,0 +1,9 @@
+from: markdown+yaml_metadata_block+pipe_tables+task_lists
+to: docx
+standalone: true
+toc: true
+toc-depth: 2
+reference-doc: reference.docx
+metadata:
+  lang: en-US
+

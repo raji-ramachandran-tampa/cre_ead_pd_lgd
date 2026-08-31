@@ -9,7 +9,14 @@ assessment.
 
 - `docs/CRE_Expected_Loss_Model_Design.docx` — overarching model governance and
   design document aligned to SR 26-2, with a legacy SR 11-7 crosswalk.
-- `docs/build_model_design.py` — reproducible Word-document builder.
+- `docs/model_design/content.md` — authoritative, reviewable narrative source.
+- `docs/model_design/pandoc.yaml` — reproducible Markdown-to-Word settings.
+- `docs/model_design/reference.docx` — approved Word styles and page layout.
+- `docs/model_design/build.ps1` — convenient local Pandoc build command.
+- `tests/test_model_design_document.py` — source, configuration, and generated
+  DOCX unit and integration tests.
+- `.github/workflows/document-tests.yml` — complete Pandoc build verification
+  on pushes and pull requests.
 - `docs/prompts/CRE_PROJECT_META_PROMPT.md` — durable lifecycle instructions for
   future design, coding, validation, monitoring, and documentation work.
 - `docs/prompts/tasks/` — focused templates for model development, validation,

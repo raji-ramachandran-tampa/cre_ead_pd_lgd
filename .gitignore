@@ -10,6 +10,8 @@ __pycache__/
 # Generated document QA artifacts
 docs/qa_*/
 docs/a11y_*.json
+docs/model_design/*.preview.docx
+docs/model_design/preview.docx
 
 # Local data and databases
 data/raw/*
