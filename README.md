@@ -17,6 +17,8 @@ assessment.
   DOCX unit and integration tests.
 - `.github/workflows/document-tests.yml` — complete Pandoc build verification
   on pushes and pull requests.
+- `docs/model_development/` — proposed development specification, data
+  dictionary, methodology candidates, and objective acceptance gates.
 - `docs/prompts/CRE_PROJECT_META_PROMPT.md` — durable lifecycle instructions for
   future design, coding, validation, monitoring, and documentation work.
 - `docs/prompts/tasks/` — focused templates for model development, validation,
@@ -33,10 +35,12 @@ guidance, not as proof of regulatory compliance.
 
 ## Next stages
 
-1. Complete the regulatory applicability assessment and enterprise-policy map.
-2. Approve model purpose, population, default/LGD/EAD definitions, and data
-   contract.
-3. Build the reproducible data and model-development pipeline.
+1. Review the proposed development specification and complete the regulatory
+   applicability and enterprise-policy map.
+2. Approve model purpose, population, default/LGD/EAD definitions, data
+   contract, candidate plan, and acceptance standards.
+3. Build the reproducible data and model-development pipeline against the
+   approved specification.
 4. Perform objective validation and implementation verification.
 5. Establish approved monitoring metrics, thresholds, escalation, and periodic
    performance assessment.

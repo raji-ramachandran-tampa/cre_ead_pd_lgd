@@ -14,6 +14,7 @@ from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 DESIGN = ROOT / "docs" / "model_design"
+DEVELOPMENT = ROOT / "docs" / "model_development"
 SOURCE = DESIGN / "content.md"
 DEFAULTS = DESIGN / "pandoc.yaml"
 REFERENCE = DESIGN / "reference.docx"
@@ -86,6 +87,58 @@ class PublishingInputsTest(unittest.TestCase):
         self.assertFalse((DESIGN / "build_document.py").exists())
 
 
+class ModelDevelopmentSpecificationTest(unittest.TestCase):
+    def test_required_development_documents_exist(self) -> None:
+        required = {
+            "README.md",
+            "specification.md",
+            "data_dictionary.md",
+            "methodology_candidates.md",
+            "acceptance_criteria.md",
+            "pandoc.yaml",
+        }
+        self.assertTrue(required.issubset({path.name for path in DEVELOPMENT.iterdir()}))
+
+    def test_specification_covers_all_expected_loss_components(self) -> None:
+        specification = (DEVELOPMENT / "specification.md").read_text(encoding="utf-8")
+        required_sections = (
+            "# 7. PD development requirements",
+            "# 8. LGD development requirements",
+            "# 9. EAD development requirements",
+            "# 10. Scenarios and expected-loss aggregation",
+            "# 13. Required testing",
+            "# 15. Open decisions and approvals required",
+        )
+        for section in required_sections:
+            self.assertIn(section, specification)
+        self.assertRegex(specification, r"does not establish\s+model approval")
+
+    def test_acceptance_criteria_have_unique_requirement_ids(self) -> None:
+        criteria = (DEVELOPMENT / "acceptance_criteria.md").read_text(encoding="utf-8")
+        identifiers = re.findall(r"\| (DEV-[A-Z]+-\d{3}) \|", criteria)
+        self.assertGreaterEqual(len(identifiers), 25)
+        self.assertEqual(len(identifiers), len(set(identifiers)))
+
+    def test_data_dictionary_declares_core_output_fields(self) -> None:
+        dictionary = (DEVELOPMENT / "data_dictionary.md").read_text(encoding="utf-8")
+        for field in (
+            "conditional_pd",
+            "marginal_pd",
+            "cumulative_pd",
+            "projected_lgd",
+            "projected_ead",
+            "discount_factor",
+            "expected_loss",
+            "run_id",
+        ):
+            self.assertRegex(dictionary, rf"(?m)^\| {field} \|")
+
+    def test_development_pandoc_config_reuses_controlled_template(self) -> None:
+        defaults = (DEVELOPMENT / "pandoc.yaml").read_text(encoding="utf-8")
+        self.assertIn("to: docx", defaults)
+        self.assertIn("reference-doc: ../model_design/reference.docx", defaults)
+
+
 @unittest.skipUnless(shutil.which("pandoc"), "Pandoc is not installed")
 class PandocIntegrationTest(unittest.TestCase):
     @classmethod
@@ -145,6 +198,35 @@ class PandocIntegrationTest(unittest.TestCase):
         self.assertTrue(source_links.issubset(published_targets))
 
 
+@unittest.skipUnless(shutil.which("pandoc"), "Pandoc is not installed")
+class DevelopmentDocumentPandocIntegrationTest(unittest.TestCase):
+    def test_each_development_artifact_builds_as_docx(self) -> None:
+        sources = (
+            "specification.md",
+            "data_dictionary.md",
+            "methodology_candidates.md",
+            "acceptance_criteria.md",
+        )
+        with tempfile.TemporaryDirectory() as temp_directory:
+            for source in sources:
+                with self.subTest(source=source):
+                    output = Path(temp_directory) / source.replace(".md", ".docx")
+                    subprocess.run(
+                        [
+                            "pandoc",
+                            "--defaults",
+                            "pandoc.yaml",
+                            "--output",
+                            str(output),
+                            source,
+                        ],
+                        cwd=DEVELOPMENT,
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                    )
+                    self.assertTrue(zipfile.is_zipfile(output))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-
