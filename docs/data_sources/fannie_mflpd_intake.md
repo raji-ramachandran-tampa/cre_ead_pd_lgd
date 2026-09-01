@@ -36,6 +36,30 @@ Raw and derived loan-level data must not be committed or redistributed. The
 repository stores only code, schemas, checksums, aggregate diagnostics that
 meet the terms, and synthetic test data.
 
+## 2.1 Local landing location
+
+The recommended external root is `C:/Users/Rajir/data/fanniemae`, supplied to
+the application through the `FANNIE_MFLPD_ROOT` environment variable. For the
+2026 Q1 release, place files under:
+
+`C:/Users/Rajir/data/fanniemae/raw/2026Q1/`
+
+Preserve names assigned by Data Dynamics. The intake manifest assigns these
+stable logical roles independent of the downloaded filename:
+
+| Logical role | Official or canonical filename |
+|---|---|
+| Full authenticated monthly main data | Preserve portal filename; canonical alias `mflpd_main_2026Q1` plus original extension |
+| Full authenticated annual DSCR data | Preserve portal filename; canonical alias `mflpd_annual_dscr_2026Q1` plus original extension |
+| Glossary and file layout | `mflpd-glossary-file-layout.pdf` |
+| Statistical summary | `mflpd-stat-summary.pdf` |
+| Credit events and loss sharing guide | `mflpd-credit-loss-qrg.pdf` |
+| Underwritten DSCR type guide | `mflpd-dscr-qrg.pdf` |
+| Accepted terms record | Canonical local name `fannie-data-dynamics-terms-YYYY-MM-DD.pdf` |
+
+Optional format-validation samples are `mflpd-sample-file.csv` and
+`mflpd-sample-data-dscr.txt`; they are not substitutes for the full files.
+
 # 3. Snapshot manifest
 
 Each quarterly release receives an immutable snapshot ID. The manifest records
@@ -129,4 +153,3 @@ Access is free after registration, but Fannie Mae states that its terms prohibit
 third-party distribution and external commercial use without express written
 consent. Permitted use and publication of derived results require review before
 data acquisition is treated as approved.
-

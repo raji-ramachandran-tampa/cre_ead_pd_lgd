@@ -14,6 +14,7 @@ SELECTION = ROOT / "docs" / "data_sources" / "public_source_selection.md"
 MAPPING = ROOT / "docs" / "data_sources" / "field_mapping.md"
 EXPERIMENTS = ROOT / "config" / "comparative_experiments.yaml"
 COMPARISON = ROOT / "docs" / "model_development" / "comparative_methodology_plan.md"
+LOCATIONS = ROOT / "config" / "data_locations.yaml"
 
 
 class PublicSourceRegistryStaticTest(unittest.TestCase):
@@ -83,6 +84,13 @@ class PublicSourceRegistryStaticTest(unittest.TestCase):
         for heading in ("# 3. PD comparison", "# 4. LGD comparison", "# 5. EAD comparison"):
             self.assertIn(heading, comparison)
         self.assertIn("does not assume", comparison)
+
+    def test_restricted_data_location_is_external_and_environment_driven(self) -> None:
+        locations = LOCATIONS.read_text(encoding="utf-8")
+        self.assertIn("environment_variable: FANNIE_MFLPD_ROOT", locations)
+        self.assertIn("C:/Users/Rajir/data/fanniemae", locations)
+        self.assertIn("prohibit_git_storage: true", locations)
+        self.assertNotIn("password", locations.lower())
 
 
 @unittest.skipUnless(importlib.util.find_spec("yaml"), "PyYAML is not installed")

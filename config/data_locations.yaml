@@ -1,0 +1,10 @@
+locations:
+  fannie_mflpd:
+    environment_variable: FANNIE_MFLPD_ROOT
+    recommended_windows_path: C:/Users/Rajir/data/fanniemae
+    raw_subdirectory: raw
+    manifest_subdirectory: manifests
+    interim_subdirectory: interim
+    processed_subdirectory: processed
+    prohibit_git_storage: true
+

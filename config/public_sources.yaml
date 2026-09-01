@@ -15,6 +15,9 @@ sources:
     raw_format: csv
     restrictions_review: required_no_redistribution
     repository_data_policy: raw_and_derived_loan_level_data_prohibited
+    data_root_environment_variable: FANNIE_MFLPD_ROOT
+    update_method: authenticated_manual_download_then_automated_intake
+    update_frequency: quarterly
 
   - id: sec_abs_ee
     authority: U.S. Securities and Exchange Commission
