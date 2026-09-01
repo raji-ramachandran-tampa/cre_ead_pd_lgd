@@ -4,10 +4,22 @@ intended_use: controlled_feasibility_and_model_development
 approval_status: proposed_not_approved
 
 sources:
+  - id: fannie_mflpd
+    authority: Fannie Mae
+    role: primary_multifamily_loan_performance
+    status: selected_primary_registration_required
+    landing_url: https://capitalmarkets.fanniemae.com/credit-risk-transfer/multifamily-credit-risk-transfer/multifamily-loan-performance-data
+    access: data_dynamics_manual_download
+    authentication: registered_user
+    required_environment_variables: []
+    raw_format: csv
+    restrictions_review: required_no_redistribution
+    repository_data_policy: raw_and_derived_loan_level_data_prohibited
+
   - id: sec_abs_ee
     authority: U.S. Securities and Exchange Commission
-    role: primary_loan_property_performance
-    status: selected_primary
+    role: secondary_broader_cre_challenger
+    status: selected_secondary
     access: edgar_archives
     discovery_url: https://www.sec.gov/Archives/edgar/daily-index/
     documentation_url: https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/information-form-abs-ee-filings
@@ -109,4 +121,3 @@ sources:
     required_environment_variables: []
     raw_format: bulk_download
     restrictions_review: source_series_required
-

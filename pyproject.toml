@@ -26,6 +26,10 @@ modeling = [
   "scikit-learn>=1.5,<2",
   "statsmodels>=0.14,<1",
 ]
+bayesian = [
+  "arviz>=0.20,<1",
+  "pymc>=5,<6",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cre_expected_loss"]
@@ -36,4 +40,3 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-

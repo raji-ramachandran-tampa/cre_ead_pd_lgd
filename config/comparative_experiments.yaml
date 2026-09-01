@@ -1,0 +1,33 @@
+experiment_version: 0.1.0-proposed
+population: fannie_mae_multifamily
+grain: loan_month
+approval_status: proposed_not_approved
+split_strategy: chronological_grouped_by_loan
+final_test_policy: evaluate_once_after_candidate_freeze
+
+components:
+  pd:
+    target: first_qualifying_credit_event
+    classical: discrete_time_hazard_glm
+    bayesian: hierarchical_discrete_time_hazard
+    machine_learning: calibrated_gradient_boosted_hazard
+  lgd:
+    target: lifetime_net_credit_loss_over_default_amount
+    classical: two_part_glm
+    bayesian: hierarchical_two_part
+    machine_learning: calibrated_boosted_two_part
+  ead:
+    target: horizon_current_upb
+    classical: contractual_plus_competing_exit
+    bayesian: hierarchical_balance_runoff
+    machine_learning: bounded_boosted_balance_factor
+
+common_controls:
+  same_outcome_version: true
+  same_feature_snapshot: true
+  same_time_partitions: true
+  same_evaluation_grain: true
+  retain_candidate_predictions: true
+  prohibit_post_event_features: true
+  thresholds: to_be_approved
+

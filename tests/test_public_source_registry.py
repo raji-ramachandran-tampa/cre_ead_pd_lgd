@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "config" / "public_sources.yaml"
 SELECTION = ROOT / "docs" / "data_sources" / "public_source_selection.md"
 MAPPING = ROOT / "docs" / "data_sources" / "field_mapping.md"
+EXPERIMENTS = ROOT / "config" / "comparative_experiments.yaml"
+COMPARISON = ROOT / "docs" / "model_development" / "comparative_methodology_plan.md"
 
 
 class PublicSourceRegistryStaticTest(unittest.TestCase):
@@ -24,8 +26,14 @@ class PublicSourceRegistryStaticTest(unittest.TestCase):
     def test_source_ids_are_unique_and_expected_sources_are_present(self) -> None:
         identifiers = re.findall(r"(?m)^\s+- id: ([a-z0-9_]+)$", self.registry)
         self.assertEqual(len(identifiers), len(set(identifiers)))
-        self.assertGreaterEqual(len(identifiers), 10)
-        for required in ("sec_abs_ee", "frb_scenario", "fred_alfred", "ffiec_call"):
+        self.assertGreaterEqual(len(identifiers), 11)
+        for required in (
+            "fannie_mflpd",
+            "sec_abs_ee",
+            "frb_scenario",
+            "fred_alfred",
+            "ffiec_call",
+        ):
             self.assertIn(required, identifiers)
 
     def test_registry_uses_https_and_environment_variable_credentials(self) -> None:
@@ -39,7 +47,8 @@ class PublicSourceRegistryStaticTest(unittest.TestCase):
     def test_primary_source_and_restrictions_are_explicit(self) -> None:
         self.assertRegex(
             self.registry,
-            r"(?s)id: sec_abs_ee.*?status: selected_primary.*?restrictions_review: required",
+            r"(?s)id: fannie_mflpd.*?status: selected_primary_registration_required"
+            r".*?restrictions_review: required_no_redistribution",
         )
         self.assertIn("does not yet support production", self.selection)
         self.assertIn("Major gap risk", self.mapping)
@@ -47,6 +56,7 @@ class PublicSourceRegistryStaticTest(unittest.TestCase):
     def test_all_registry_sources_appear_in_selection_document(self) -> None:
         identifiers = re.findall(r"(?m)^\s+- id: ([a-z0-9_]+)$", self.registry)
         labels = {
+            "fannie_mflpd": "FANNIE-MFLPD",
             "sec_abs_ee": "SEC-ABS-EE",
             "frb_scenario": "FRB-SCENARIO",
             "fred_alfred": "FRED-ALFRED",
@@ -61,6 +71,18 @@ class PublicSourceRegistryStaticTest(unittest.TestCase):
         self.assertEqual(set(identifiers), set(labels))
         for identifier in identifiers:
             self.assertIn(labels[identifier], self.selection)
+
+    def test_comparative_plan_covers_three_families_for_each_component(self) -> None:
+        experiments = EXPERIMENTS.read_text(encoding="utf-8")
+        comparison = COMPARISON.read_text(encoding="utf-8")
+        for component in ("pd", "lgd", "ead"):
+            self.assertRegex(experiments, rf"(?m)^  {component}:$")
+        self.assertEqual(experiments.count("    classical:"), 3)
+        self.assertEqual(experiments.count("    bayesian:"), 3)
+        self.assertEqual(experiments.count("    machine_learning:"), 3)
+        for heading in ("# 3. PD comparison", "# 4. LGD comparison", "# 5. EAD comparison"):
+            self.assertIn(heading, comparison)
+        self.assertIn("does not assume", comparison)
 
 
 @unittest.skipUnless(importlib.util.find_spec("yaml"), "PyYAML is not installed")

@@ -30,6 +30,8 @@ fitted, validated, or approved model.
 - `config/` — proposed model and scenario configuration.
 - `docs/data_sources/` and `config/public_sources.yaml` — controlled public-data
   selection, source-to-field mapping, access registry, and acquisition sequence.
+- `docs/model_development/comparative_methodology_plan.md` — common-sample
+  classical, Bayesian, and machine-learning comparison for PD, LGD, and EAD.
 - `tests/` — document, mathematical, contract, boundary, and integration tests.
 - `data/raw`, `data/interim`, `data/processed` — ignored local data layers;
   only directory placeholders are versioned.

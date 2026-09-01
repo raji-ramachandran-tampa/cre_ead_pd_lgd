@@ -8,8 +8,10 @@ lifecycle_stage: "Model development — data sourcing"
 
 # 1. Decision and intended use
 
-The proposed foundation is SEC EDGAR Form ABS-EE commercial mortgage-backed
-securities data for loan/property/performance observations, enriched with
+The proposed initial foundation is Fannie Mae Multifamily Loan Performance Data
+for a controlled multifamily CRE study. SEC EDGAR Form ABS-EE commercial
+mortgage-backed securities data is retained as a broader-CRE challenger,
+enriched with
 official macroeconomic and regional series and benchmarked to aggregate bank
 and commercial-property indicators. This selection supports feasibility,
 economic expected-loss research, benchmark construction, and data-gap
@@ -43,7 +45,8 @@ Statuses mean:
 
 | ID | Source and authority | Role | Grain/frequency | Status | Principal limitation |
 |---|---|---|---|---|---|
-| SEC-ABS-EE | SEC EDGAR Form ABS-EE Exhibit 102 CMBS asset files | Loan, property, balance, performance, and outcome foundation | Asset/reporting period; commonly periodic filings | Selected — primary | Securitized population; schema/issuer variation; incomplete workout economics |
+| FANNIE-MFLPD | Fannie Mae Multifamily Loan Performance Data | Initial monthly loan/default/loss development foundation | Loan-month plus annual DSCR | Selected — primary, registration required | Multifamily/Fannie population; restricted redistribution; sparse/revised losses |
+| SEC-ABS-EE | SEC EDGAR Form ABS-EE Exhibit 102 CMBS asset files | Broader property-type challenger | Asset/reporting period; commonly periodic filings | Selected — secondary | Securitized population; schema/issuer variation; incomplete workout economics |
 | FRB-SCENARIO | Federal Reserve supervisory scenario historical and scenario CSV files | National macro and CRE-price history; scenario benchmark | National quarterly and scenario quarter | Selected — enrichment | Supervisory scenarios are not automatically the model's approved scenarios |
 | FRED-ALFRED | Federal Reserve Bank of St. Louis FRED/ALFRED | Rates, spreads, macro history, and data vintages | Series-specific | Selected — enrichment | API key; series-specific rights and revisions require review |
 | BLS-PUBLIC | BLS Public Data API: LAUS, CES and selected QCEW-derived series | Labor-market and sector demand variables | National/state/MSA; monthly/quarterly | Selected — enrichment | Series definitions and geographic boundaries change |
@@ -54,7 +57,14 @@ Statuses mean:
 | FHFA-HPI | FHFA House Price Index datasets | Multifamily/residential collateral-market proxy | National/state/MSA/other; monthly/quarterly | Conditional | Single-family index; not a CRE valuation measure |
 | BIS-CPPI | BIS commercial property price statistics | National commercial-property-price challenger | Mostly national; frequency varies | Conditional | Source/method comparability and underlying rights vary by series |
 
-# 4. Primary loan-level source: SEC ABS-EE
+# 4. Primary loan-level source: Fannie Mae MFLPD
+
+The intake and outcome requirements are defined in `fannie_mflpd_intake.md`.
+The full files require a registered Data Dynamics account and must remain
+outside Git. The initial model population is explicitly Fannie Mae multifamily,
+not all CRE.
+
+# 5. Secondary loan-level source: SEC ABS-EE
 
 The SEC requires asset data files to be filed as Exhibit 102 to Form ABS-EE.
 The SEC's guidance states that performance-related information includes
@@ -65,7 +75,7 @@ decimals. These controls make the filing and acceptance timestamps, accession,
 period of report, amendment status, and exhibit checksum essential lineage
 fields.
 
-## 4.1 Proposed acquisition pattern
+## 5.1 Proposed acquisition pattern
 
 1. Discover `ABS-EE` and `ABS-EE/A` filings from EDGAR daily or full indexes.
 2. Retain filer CIK, accession, filing date, acceptance timestamp, period of
@@ -84,7 +94,7 @@ The SEC's public `data.sec.gov` APIs do not require an API key, but automated
 access must follow SEC fair-access requirements. The submissions API is useful
 for filer history; Exhibit 102 retrieval uses the EDGAR archive structure.
 
-## 4.2 Required feasibility tests
+## 5.2 Required feasibility tests
 
 - Count filings, trusts, loans, properties, quarters, and unique relationships.
 - Quantify tag availability by schema version, filer, property type, and time.
@@ -97,9 +107,9 @@ for filer history; Exhibit 102 retrieval uses the EDGAR archive structure.
 - Compare CMBS distributions with FFIEC bank aggregates and disclose selection
   bias that cannot be corrected.
 
-# 5. Enrichment and scenario sources
+# 6. Enrichment and scenario sources
 
-## 5.1 Federal Reserve scenario history
+## 6.1 Federal Reserve scenario history
 
 Use the Federal Reserve's downloadable domestic historical and scenario CSV
 files as a controlled national scenario benchmark. The published files include
@@ -111,7 +121,7 @@ These paths are external supervisory scenarios, not approved internal scenario
 weights or forecasts. Their use in estimation, sensitivity, or benchmarking
 must remain separately identified.
 
-## 5.2 FRED and ALFRED
+## 6.2 FRED and ALFRED
 
 FRED provides programmatic series observations, while ALFRED adds real-time
 periods showing what was originally released and later revised. ALFRED is the
@@ -123,7 +133,7 @@ Initial candidate families are Treasury rates, prime rate, credit spreads,
 unemployment, inflation, and national activity. Final series IDs are selected
 only after correlation, redundancy, release-lag, and conceptual reviews.
 
-## 5.3 BLS, BEA, and Census
+## 6.3 BLS, BEA, and Census
 
 BLS is the preferred labor source for national and geographic employment and
 unemployment measures. BEA is the preferred source for regional GDP, income,
@@ -135,7 +145,7 @@ Every geographic join requires a versioned CBSA/county/state crosswalk and an
 explicit policy for boundary changes. Monthly and annual observations require
 an approved quarterly alignment and availability lag.
 
-# 6. Benchmark and conditional sources
+# 7. Benchmark and conditional sources
 
 FFIEC Call Report bulk data provide quarterly institution-level balance-sheet,
 income, and past-due information and are selected to benchmark bank CRE
@@ -152,25 +162,26 @@ sensitivity and prohibited as a direct general-CRE valuation substitute without
 empirical support. BIS commercial-property prices are conditional pending
 series-level source, methodology, comparability, and rights review.
 
-# 7. Sources not selected for the initial build
+# 8. Sources not selected for the initial build
 
 Commercial vendor datasets, trustee/servicer portals without stable public
 terms, web-scraped listing data, generative-AI outputs, and unattributed
 aggregations are not selected. They may be reconsidered through third-party,
 licensing, lineage, information-security, and change-management review.
 
-# 8. Proposed acquisition sequence
+# 9. Proposed acquisition sequence
 
 | Phase | Scope | Completion evidence |
 |---|---|---|
-| 1 | SEC discovery and 2–3 trust pilot across multiple quarters | Filing manifest, raw checksums, parsed tag inventory, key persistence report |
-| 2 | Expand SEC pilot across property types, vintages, amendments, and stressed outcomes | Coverage, missingness, outcome feasibility, representativeness and reconciliation report |
-| 3 | Federal Reserve scenario history plus ALFRED/FRED rate and macro pilot | Vintage-aware economic table and release-lag tests |
-| 4 | BLS/BEA/Census geographic enrichment | Crosswalk version, frequency/availability alignment, unmatched-rate report |
-| 5 | FFIEC/SLOOS and conditional FHFA/BIS benchmarks | Aggregate trend comparison and proxy limitations report |
-| 6 | Source-selection gate | Approved sources, permitted uses, exclusions, unresolved gaps, and model-component restrictions |
+| 1 | User-authorized Fannie MFLPD quarterly snapshot and reference materials | Terms record, manifest, raw checksums, statistical-summary reconciliation |
+| 2 | Fannie monthly panel and PD/LGD/EAD outcome feasibility | Key persistence, corrections, missingness, events, losses and representativeness report |
+| 3 | Common-sample classical/Bayesian/ML benchmark dataset | Frozen outcomes, features, chronological partitions and experiment manifest |
+| 4 | Federal Reserve scenario history plus ALFRED/FRED macro pilot | Vintage-aware economic table and release-lag tests |
+| 5 | BLS/BEA/Census enrichment and FFIEC/SLOOS benchmarks | Geographic crosswalk, alignment, aggregate comparison and limitations |
+| 6 | SEC ABS-EE broader-CRE challenger pilot | Parsed tag inventory, key persistence and population comparison |
+| 7 | Source-selection gate | Approved sources, permitted uses, exclusions, unresolved gaps, and component restrictions |
 
-# 9. Approval and stop conditions
+# 10. Approval and stop conditions
 
 Before scale acquisition, the data owner and appropriate Legal/Compliance or
 third-party authority must approve permitted use, retention, redistribution,
@@ -178,12 +189,13 @@ credentials, and attribution where required. Development must stop or restrict
 a component when stable keys, outcome coverage, point-in-time dates, or lawful
 use cannot be demonstrated.
 
-No fitted PD, LGD, or EAD model should be selected until the SEC feasibility
-study establishes population coverage and executable outcomes. If workout cash
-flows are inadequate, LGD remains a benchmark/proxy component and the limitation
-must be reflected in intended use.
+No fitted PD, LGD, or EAD model should be selected until the Fannie feasibility
+study establishes population coverage and executable outcomes. If credit-event,
+loss-sharing, commitment, or balance fields are inadequate, the affected LGD or
+EAD comparison remains a benchmark/proxy exercise and the limitation must be
+reflected in intended use.
 
-# 10. Authoritative references
+# 11. Authoritative references
 
 - [SEC information for Form ABS-EE filings](https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/information-form-abs-ee-filings)
 - [SEC EDGAR APIs and bulk data](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)
@@ -196,4 +208,3 @@ must be reflected in intended use.
 - [Federal Reserve SLOOS description](https://www.federalreserve.gov/boarddocs/SnLoanSurvey/about.htm)
 - [FHFA HPI datasets](https://www.fhfa.gov/house-price-index?tab=HPI+Datasets)
 - [BIS commercial property prices](https://data.bis.org/topics/CPP?m=2646)
-
