@@ -22,10 +22,7 @@ def csv_to_parquet(source: Path, destination: Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
     connection = _duckdb().connect()
     try:
-        connection.execute(
-            "COPY (SELECT * FROM read_csv_auto(?)) TO ? (FORMAT PARQUET)",
-            [str(source), str(destination)],
-        )
+        connection.read_csv(str(source)).write_parquet(str(destination))
     finally:
         connection.close()
     return destination
@@ -37,8 +34,8 @@ def register_parquet_view(connection: Any, view_name: str, path: Path) -> None:
         raise ValueError("view_name must be a valid identifier")
     if not Path(path).is_file():
         raise FileNotFoundError(path)
+    escaped_path = str(path).replace("'", "''")
     connection.execute(
-        f'CREATE OR REPLACE VIEW "{view_name}" AS SELECT * FROM read_parquet(?)',
-        [str(path)],
+        f'CREATE OR REPLACE VIEW "{view_name}" AS '
+        f"SELECT * FROM read_parquet('{escaped_path}')"
     )
-
