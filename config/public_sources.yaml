@@ -1,0 +1,112 @@
+registry_version: 0.1.0-proposed
+as_of_date: 2026-09-01
+intended_use: controlled_feasibility_and_model_development
+approval_status: proposed_not_approved
+
+sources:
+  - id: sec_abs_ee
+    authority: U.S. Securities and Exchange Commission
+    role: primary_loan_property_performance
+    status: selected_primary
+    access: edgar_archives
+    discovery_url: https://www.sec.gov/Archives/edgar/daily-index/
+    documentation_url: https://www.sec.gov/rules-regulations/staff-guidance/corporation-finance-interpretations/information-form-abs-ee-filings
+    authentication: none
+    required_environment_variables: []
+    point_in_time_field: acceptance_timestamp
+    raw_format: xml
+    restrictions_review: required
+
+  - id: frb_scenario
+    authority: Board of Governors of the Federal Reserve System
+    role: macro_cre_price_scenario_enrichment
+    status: selected_enrichment
+    landing_url: https://www.federalreserve.gov/supervisionreg/dfa-stress-tests-2026.htm
+    authentication: none
+    required_environment_variables: []
+    raw_format: csv
+    restrictions_review: required
+
+  - id: fred_alfred
+    authority: Federal Reserve Bank of St. Louis
+    role: vintage_aware_macro_enrichment
+    status: selected_enrichment
+    api_url: https://api.stlouisfed.org/fred/
+    documentation_url: https://fred.stlouisfed.org/docs/api/fred/alfred.html
+    authentication: api_key
+    required_environment_variables: [FRED_API_KEY]
+    raw_format: json
+    restrictions_review: series_level_required
+
+  - id: bls_public
+    authority: U.S. Bureau of Labor Statistics
+    role: labor_market_enrichment
+    status: selected_enrichment
+    api_url: https://api.bls.gov/publicAPI/v2/timeseries/data/
+    documentation_url: https://www.bls.gov/developers/home.htm
+    authentication: optional_registration_key
+    required_environment_variables: []
+    raw_format: json
+    restrictions_review: required
+
+  - id: bea_regional
+    authority: U.S. Bureau of Economic Analysis
+    role: regional_economy_enrichment
+    status: selected_enrichment
+    api_url: https://apps.bea.gov/api/data/
+    documentation_url: https://apps.bea.gov/api/signup/
+    authentication: api_key
+    required_environment_variables: [BEA_API_KEY]
+    raw_format: json
+    restrictions_review: required
+
+  - id: census_bps
+    authority: U.S. Census Bureau
+    role: multifamily_supply_proxy
+    status: selected_enrichment
+    landing_url: https://www.census.gov/construction/bps/index.html
+    authentication: none
+    required_environment_variables: []
+    raw_format: delimited_or_xlsx
+    restrictions_review: required
+
+  - id: ffiec_call
+    authority: Federal Financial Institutions Examination Council
+    role: bank_portfolio_benchmark
+    status: selected_benchmark
+    landing_url: https://cdr.ffiec.gov/public/HelpFiles/WelcomeAdditionalInfo.htm
+    authentication: none
+    required_environment_variables: []
+    raw_format: tab_delimited_or_xbrl
+    restrictions_review: required
+
+  - id: frb_sloos
+    authority: Board of Governors of the Federal Reserve System
+    role: lending_regime_benchmark
+    status: selected_benchmark
+    landing_url: https://www.federalreserve.gov/boarddocs/SnLoanSurvey/about.htm
+    authentication: none
+    required_environment_variables: []
+    raw_format: published_tables
+    restrictions_review: required
+
+  - id: fhfa_hpi
+    authority: Federal Housing Finance Agency
+    role: residential_collateral_proxy
+    status: conditional
+    landing_url: https://www.fhfa.gov/house-price-index?tab=HPI+Datasets
+    authentication: none
+    required_environment_variables: []
+    raw_format: csv
+    restrictions_review: required
+
+  - id: bis_cppi
+    authority: Bank for International Settlements
+    role: national_cre_price_challenger
+    status: conditional
+    landing_url: https://data.bis.org/topics/CPP
+    authentication: none
+    required_environment_variables: []
+    raw_format: bulk_download
+    restrictions_review: source_series_required
+
