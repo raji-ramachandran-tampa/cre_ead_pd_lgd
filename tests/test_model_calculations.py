@@ -4,6 +4,7 @@ import math
 import importlib.util
 import sys
 import tempfile
+from unittest.mock import patch
 import unittest
 from datetime import date
 from pathlib import Path
@@ -30,6 +31,7 @@ from cre_expected_loss.models import (  # noqa: E402
 from cre_expected_loss.scenarios import validate_scenario_weights  # noqa: E402
 from cre_expected_loss.validation import assert_unique_keys  # noqa: E402
 from cre_expected_loss.ingestion import csv_to_parquet  # noqa: E402
+from cre_expected_loss.paths import fannie_data_root, fannie_release_directory  # noqa: E402
 
 
 class PDTermStructureTest(unittest.TestCase):
@@ -114,6 +116,23 @@ class ContractAndFeatureTest(unittest.TestCase):
         self.assertEqual(loan_to_value(80.0, 100.0), 0.8)
         self.assertEqual(debt_service_coverage_ratio(125.0, 100.0), 1.25)
         self.assertEqual(valuation_age_days(date(2026, 1, 1), date(2026, 1, 31)), 30)
+
+    def test_fannie_path_comes_from_environment(self) -> None:
+        configured = str(Path.cwd() / "external-fannie-test")
+        with patch.dict("os.environ", {"FANNIE_MFLPD_ROOT": configured}):
+            self.assertEqual(fannie_data_root(), Path(configured).resolve())
+            self.assertEqual(
+                fannie_release_directory("2026Q1"),
+                Path(configured).resolve() / "raw" / "2026Q1",
+            )
+        with patch.dict("os.environ", {}, clear=True), self.assertRaises(RuntimeError):
+            fannie_data_root()
+
+    def test_invalid_fannie_release_fails(self) -> None:
+        with patch.dict("os.environ", {"FANNIE_MFLPD_ROOT": str(Path.cwd())}):
+            for release in ("2026", "26Q1", "2026Q5", "abcdQ1"):
+                with self.subTest(release=release), self.assertRaises(ValueError):
+                    fannie_release_directory(release)
 
 
 @unittest.skipUnless(importlib.util.find_spec("duckdb"), "DuckDB is not installed")

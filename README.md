@@ -18,7 +18,7 @@ fitted, validated, or approved model.
 - `docs/model_design/content.md` — authoritative, reviewable narrative source.
 - `docs/model_design/pandoc.yaml` — reproducible Markdown-to-Word settings.
 - `docs/model_design/reference.docx` — approved Word styles and page layout.
-- `docs/model_design/build.ps1` — convenient local Pandoc build command.
+- `src/cre_expected_loss/cli.py` — Python-only project command interface.
 - `tests/test_model_design_document.py` — source, configuration, and generated
   DOCX unit and integration tests.
 - `.github/workflows/document-tests.yml` — complete Pandoc build verification
@@ -48,8 +48,12 @@ files.
 python -m venv .venv
 ./.venv/Scripts/Activate.ps1
 python -m pip install --editable ".[development,modeling]"
-python -m unittest discover -s tests -p "test_*.py" -v
+cre-el test
 ```
+
+The data and modeling application runs entirely in the active Python virtual
+environment. Pandoc remains an optional external dependency used only when the
+Python `cre-el build-doc` command is asked to publish Markdown as DOCX.
 - `docs/prompts/CRE_PROJECT_META_PROMPT.md` — durable lifecycle instructions for
   future design, coding, validation, monitoring, and documentation work.
 - `docs/prompts/tasks/` — focused templates for model development, validation,

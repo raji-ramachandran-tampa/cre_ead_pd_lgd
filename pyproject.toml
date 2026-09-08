@@ -15,6 +15,9 @@ dependencies = [
   "PyYAML>=6,<7",
 ]
 
+[project.scripts]
+cre-el = "cre_expected_loss.cli:main"
+
 [project.optional-dependencies]
 development = [
   "jupyterlab>=4,<5",

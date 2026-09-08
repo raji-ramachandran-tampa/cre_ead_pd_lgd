@@ -18,7 +18,8 @@ DEVELOPMENT = ROOT / "docs" / "model_development"
 SOURCE = DESIGN / "content.md"
 DEFAULTS = DESIGN / "pandoc.yaml"
 REFERENCE = DESIGN / "reference.docx"
-BUILD_SCRIPT = DESIGN / "build.ps1"
+PYTHON_PUBLISHER = ROOT / "src" / "cre_expected_loss" / "publishing.py"
+PYTHON_CLI = ROOT / "src" / "cre_expected_loss" / "cli.py"
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 PKG_REL = "http://schemas.openxmlformats.org/package/2006/relationships"
 
@@ -78,13 +79,16 @@ class PublishingInputsTest(unittest.TestCase):
         self.assertIn("word/styles.xml", members)
         self.assertIn("word/settings.xml", members)
 
-    def test_build_script_delegates_to_pandoc(self) -> None:
-        script = BUILD_SCRIPT.read_text(encoding="utf-8")
-        self.assertIn("Get-Command pandoc", script)
-        self.assertIn("--defaults pandoc.yaml", script)
-        self.assertIn("content.md", script)
+    def test_python_publisher_delegates_to_optional_pandoc(self) -> None:
+        publisher = PYTHON_PUBLISHER.read_text(encoding="utf-8")
+        cli = PYTHON_CLI.read_text(encoding="utf-8")
+        self.assertIn('shutil.which("pandoc")', publisher)
+        self.assertIn('"--defaults"', publisher)
+        self.assertIn('commands.add_parser("build-doc"', cli)
         self.assertFalse((ROOT / "docs" / "build_model_design.py").exists())
         self.assertFalse((DESIGN / "build_document.py").exists())
+        self.assertFalse((DESIGN / "build.ps1").exists())
+        self.assertFalse((ROOT / "scripts" / "test_document.ps1").exists())
 
 
 class ModelDevelopmentSpecificationTest(unittest.TestCase):

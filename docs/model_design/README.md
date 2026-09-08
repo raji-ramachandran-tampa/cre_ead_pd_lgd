@@ -13,24 +13,24 @@ Install Pandoc and confirm that `pandoc --version` works in PowerShell.
 
 ## Build
 
-From the repository root, run:
+After installing the project in its Python virtual environment, run:
 
-```powershell
-./docs/model_design/build.ps1
+```text
+cre-el build-doc --document model_design --source content.md --output ../CRE_Expected_Loss_Model_Design.docx
 ```
 
 To avoid replacing the controlled output during review, supply another path:
 
-```powershell
-./docs/model_design/build.ps1 -Output "preview.docx"
+```text
+cre-el build-doc --document model_design --source content.md --output preview.docx
 ```
 
 ## Tests
 
 Run the repository's self-contained document tests with:
 
-```powershell
-./scripts/test_document.ps1
+```text
+cre-el test
 ```
 
 The tests check the Markdown source, Pandoc configuration, reference DOCX,
@@ -42,8 +42,8 @@ request.
 ## Editing workflow
 
 1. Edit and review `content.md`.
-2. Run `build.ps1`, which invokes Pandoc using `pandoc.yaml` and
-   `reference.docx`.
+2. Run the Python `cre-el build-doc` command, which invokes optional Pandoc
+   using `pandoc.yaml` and `reference.docx`.
 3. Render and visually inspect the DOCX.
 4. Run accessibility, heading, section, hyperlink, and table-geometry checks.
 5. Commit both the reviewed Markdown and regenerated DOCX.

@@ -18,12 +18,14 @@ evidence of completed development, validation, approval, or production use.
 
 ## Publication
 
-From this directory, publish any Markdown document with:
+After installing the project in its Python environment, publish with:
 
-```powershell
-pandoc --defaults pandoc.yaml --output specification.docx specification.md
+```text
+cre-el build-doc --document model_development --source specification.md --output specification.docx
 ```
+
+The command is Python. Pandoc remains an optional external dependency used only
+for DOCX conversion.
 
 The Markdown files are authoritative. Generated DOCX files are review copies
 and must not contain content that is absent from the corresponding Markdown.
-
