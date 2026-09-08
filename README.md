@@ -49,6 +49,8 @@ python -m venv .venv
 ./.venv/Scripts/Activate.ps1
 python -m pip install --editable ".[development,modeling]"
 cre-el test
+cre-el data-root --release 2026Q1
+cre-el intake-fannie --release 2026Q1 --count-rows --write-manifest
 ```
 
 The data and modeling application runs entirely in the active Python virtual

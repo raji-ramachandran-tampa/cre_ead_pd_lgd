@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .paths import fannie_data_root, fannie_release_directory
 from .publishing import publish_docx
+from .ingestion import build_release_manifest, write_manifest
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -43,6 +44,23 @@ def _build_document(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _intake_fannie(arguments: argparse.Namespace) -> int:
+    release_directory = fannie_release_directory(arguments.release)
+    manifest = build_release_manifest(
+        release_directory,
+        arguments.release,
+        count_rows=arguments.count_rows,
+    )
+    if arguments.write_manifest:
+        destination = fannie_data_root() / "manifests" / f"{arguments.release}_intake.json"
+        print(write_manifest(manifest, destination))
+    else:
+        import json
+
+        print(json.dumps(manifest, indent=2))
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     """Create the command parser."""
     result = argparse.ArgumentParser(prog="cre-el")
@@ -64,6 +82,16 @@ def parser() -> argparse.ArgumentParser:
     document.add_argument("--source", default="content.md")
     document.add_argument("--output", default="preview.docx")
     document.set_defaults(handler=_build_document)
+
+    intake = commands.add_parser("intake-fannie", help="inspect a Fannie MFLPD release")
+    intake.add_argument("--release", required=True, help="release such as 2026Q1")
+    intake.add_argument("--count-rows", action="store_true", help="stream and count all CSV rows")
+    intake.add_argument(
+        "--write-manifest",
+        action="store_true",
+        help="write an immutable manifest under the external data root",
+    )
+    intake.set_defaults(handler=_intake_fannie)
     return result
 
 
@@ -75,4 +103,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

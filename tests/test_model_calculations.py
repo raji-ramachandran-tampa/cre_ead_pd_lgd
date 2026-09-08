@@ -4,6 +4,7 @@ import math
 import importlib.util
 import sys
 import tempfile
+import zipfile
 from unittest.mock import patch
 import unittest
 from datetime import date
@@ -31,6 +32,7 @@ from cre_expected_loss.models import (  # noqa: E402
 from cre_expected_loss.scenarios import validate_scenario_weights  # noqa: E402
 from cre_expected_loss.validation import assert_unique_keys  # noqa: E402
 from cre_expected_loss.ingestion import csv_to_parquet  # noqa: E402
+from cre_expected_loss.ingestion.fannie import inspect_zip, write_manifest  # noqa: E402
 from cre_expected_loss.paths import fannie_data_root, fannie_release_directory  # noqa: E402
 
 
@@ -144,6 +146,26 @@ class DuckDBIntegrationTest(unittest.TestCase):
             source.write_text("loan_id,balance\nL1,100\n", encoding="utf-8")
             self.assertEqual(csv_to_parquet(source, output), output)
             self.assertTrue(output.is_file())
+
+
+class FannieIntakeTest(unittest.TestCase):
+    def test_dscr_zip_is_inspected_without_extraction(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            archive_path = Path(directory) / "Multifamily_DSCR.zip"
+            with zipfile.ZipFile(archive_path, "w") as archive:
+                archive.writestr("dscr.csv", "Loan Number,Year,Year DSCR\nL1,2025,1.25\n")
+            result = inspect_zip(archive_path, "dscr", count_rows=True)
+            self.assertEqual(result["column_count"], 3)
+            self.assertEqual(result["data_row_count"], 1)
+            self.assertEqual(len(result["archive_sha256"]), 64)
+            self.assertFalse((Path(directory) / "dscr.csv").exists())
+
+    def test_manifest_cannot_be_overwritten(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory) / "manifest.json"
+            write_manifest({"release": "2026Q1"}, destination)
+            with self.assertRaises(FileExistsError):
+                write_manifest({"release": "2026Q1"}, destination)
 
 
 if __name__ == "__main__":
