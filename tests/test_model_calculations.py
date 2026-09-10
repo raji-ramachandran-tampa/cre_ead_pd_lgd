@@ -1,39 +1,42 @@
 """Unit tests for the first expected-loss implementation slice."""
 
-import math
 import importlib.util
+import math
 import sys
 import tempfile
-import zipfile
-from unittest.mock import patch
 import unittest
+import zipfile
 from datetime import date
 from pathlib import Path
-
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from cre_expected_loss.aggregation import (  # noqa: E402
+from cre_expected_loss.aggregation import (
     ExpectedLossRow,
     aggregate_scenario_weighted_loss,
     calculate_expected_loss,
 )
-from cre_expected_loss.features import (  # noqa: E402
+from cre_expected_loss.features import (
     debt_service_coverage_ratio,
     loan_to_value,
     valuation_age_days,
 )
-from cre_expected_loss.models import (  # noqa: E402
+from cre_expected_loss.ingestion import csv_to_parquet
+from cre_expected_loss.ingestion.fannie import inspect_zip, write_manifest
+from cre_expected_loss.models import (
     WorkoutCashFlow,
+    binary_metrics,
     discounted_workout_lgd,
+    empirical_lgd,
+    fit_segment_pd_benchmark,
+    funded_term_ead,
     hazards_to_term_structure,
     project_contractual_ead,
 )
-from cre_expected_loss.scenarios import validate_scenario_weights  # noqa: E402
-from cre_expected_loss.validation import assert_unique_keys  # noqa: E402
-from cre_expected_loss.ingestion import csv_to_parquet  # noqa: E402
-from cre_expected_loss.ingestion.fannie import inspect_zip, write_manifest  # noqa: E402
-from cre_expected_loss.paths import fannie_data_root, fannie_release_directory  # noqa: E402
+from cre_expected_loss.paths import fannie_data_root, fannie_release_directory
+from cre_expected_loss.scenarios import validate_scenario_weights
+from cre_expected_loss.validation import assert_unique_keys
 
 
 class PDTermStructureTest(unittest.TestCase):
@@ -62,10 +65,13 @@ class LGDTest(unittest.TestCase):
         self.assertAlmostEqual(discounted_workout_lgd(100.0, cash_flows, 0.10), 6 / 11)
 
     def test_raw_lgd_is_not_silently_capped(self) -> None:
-        result = discounted_workout_lgd(
-            100.0, [WorkoutCashFlow(20.0, 0.0, "cost")], 0.0
-        )
+        result = discounted_workout_lgd(100.0, [WorkoutCashFlow(20.0, 0.0, "cost")], 0.0)
         self.assertEqual(result, 1.2)
+
+    def test_provisional_empirical_lgd_is_uncapped(self) -> None:
+        self.assertEqual(empirical_lgd(120.0, 100.0), 1.2)
+        with self.assertRaises(ValueError):
+            empirical_lgd(1.0, 0.0)
 
 
 class EADTest(unittest.TestCase):
@@ -78,6 +84,22 @@ class EADTest(unittest.TestCase):
     def test_commitment_limit_is_enforced(self) -> None:
         with self.assertRaises(ValueError):
             project_contractual_ead(90.0, [0.0], [20.0], commitment_limit=100.0)
+
+    def test_funded_term_ead_benchmark(self) -> None:
+        self.assertEqual(funded_term_ead(125.0), 125.0)
+        with self.assertRaises(ValueError):
+            funded_term_ead(-1.0)
+
+
+@unittest.skipUnless(importlib.util.find_spec("sklearn"), "scikit-learn is not installed")
+class ClassicalPDTest(unittest.TestCase):
+    def test_binary_metrics(self) -> None:
+        result = binary_metrics([0, 0, 1, 1], [0.1, 0.2, 0.7, 0.9])
+        self.assertEqual(result.observations, 4)
+        self.assertEqual(result.events, 2)
+        self.assertEqual(result.roc_auc, 1.0)
+        with self.assertRaises(ValueError):
+            binary_metrics([0, 1], [0.1, 1.1])
 
 
 class AggregationTest(unittest.TestCase):
@@ -99,7 +121,7 @@ class AggregationTest(unittest.TestCase):
 
     def test_invalid_expected_loss_inputs_fail(self) -> None:
         with self.assertRaises(ValueError):
-            ExpectedLossRow("L1", "P1", 1, "baseline", 1.1, 0.4, 100.0).expected_loss
+            _ = ExpectedLossRow("L1", "P1", 1, "baseline", 1.1, 0.4, 100.0).expected_loss
 
 
 class ContractAndFeatureTest(unittest.TestCase):
@@ -149,6 +171,33 @@ class DuckDBIntegrationTest(unittest.TestCase):
             source.write_text("loan_id,balance\nL1,100\n", encoding="utf-8")
             self.assertEqual(csv_to_parquet(source, output), output)
             self.assertTrue(output.is_file())
+
+    def test_segment_pd_benchmark_writes_versioned_artifacts(self) -> None:
+        import duckdb
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, artifacts = root / "monthly.parquet", root / "artifacts"
+            duckdb.sql(
+                """COPY (SELECT * FROM (VALUES
+                ('L1', DATE '2018-01-01', DATE '2010-01-01', NULL, 'Multifamily', 0),
+                ('L2', DATE '2018-02-01', DATE '2011-01-01', DATE '2018-02-15', 'Multifamily', 1),
+                ('L3', DATE '2020-01-01', DATE '2012-01-01', NULL, 'Multifamily', 0),
+                ('L4', DATE '2024-01-01', DATE '2013-01-01', DATE '2024-01-15', 'Multifamily', 1)
+                ) t(loan_id, reporting_date, acquisition_date, first_credit_event_date,
+                    property_type, proposed_default_event)) TO ? (FORMAT PARQUET)""",
+                params=[str(source)],
+            )
+            result = fit_segment_pd_benchmark(
+                source,
+                artifacts,
+                train_end=date(2018, 12, 31),
+                validation_end=date(2022, 12, 31),
+                smoothing_observations=10.0,
+            )
+            self.assertEqual(result["metrics"]["train"]["events"], 1)
+            self.assertTrue((artifacts / "segment_rates.parquet").is_file())
+            self.assertTrue((artifacts / "model_report.json").is_file())
 
 
 class FannieIntakeTest(unittest.TestCase):

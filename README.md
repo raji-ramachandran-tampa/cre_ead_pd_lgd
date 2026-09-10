@@ -50,6 +50,8 @@ python -m pip install --editable ".[development,modeling]"
 cre-el test
 cre-el data-root --release 2026Q1
 cre-el intake-fannie --release 2026Q1 --count-rows --write-manifest
+cre-el build-fannie-dataset --release 2026Q1
+cre-el fit-fannie-pd-benchmark --release 2026Q1
 ```
 
 The data and modeling application runs entirely in the active Python virtual

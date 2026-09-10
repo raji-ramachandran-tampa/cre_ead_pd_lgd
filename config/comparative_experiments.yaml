@@ -4,6 +4,11 @@ grain: loan_month
 approval_status: proposed_not_approved
 split_strategy: chronological_grouped_by_loan
 final_test_policy: evaluate_once_after_candidate_freeze
+partitions:
+  training_end: 2018-12-31
+  validation_end: 2022-12-31
+  test_start: 2023-01-01
+  status: proposed_not_approved
 
 components:
   pd:
@@ -30,4 +35,3 @@ common_controls:
   retain_candidate_predictions: true
   prohibit_post_event_features: true
   thresholds: to_be_approved
-

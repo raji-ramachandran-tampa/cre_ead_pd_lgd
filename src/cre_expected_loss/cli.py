@@ -7,10 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from .ingestion import build_fannie_parquet, build_release_manifest, write_manifest
+from .models import fit_segment_pd_benchmark
 from .paths import fannie_data_root, fannie_release_directory
 from .publishing import publish_docx
-from .ingestion import build_release_manifest, write_manifest
-
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
@@ -24,11 +24,7 @@ def _test(_: argparse.Namespace) -> int:
 
 
 def _data_root(arguments: argparse.Namespace) -> int:
-    path = (
-        fannie_release_directory(arguments.release)
-        if arguments.release
-        else fannie_data_root()
-    )
+    path = fannie_release_directory(arguments.release) if arguments.release else fannie_data_root()
     print(path)
     return 0
 
@@ -58,6 +54,38 @@ def _intake_fannie(arguments: argparse.Namespace) -> int:
         import json
 
         print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def _build_fannie_dataset(arguments: argparse.Namespace) -> int:
+    import json
+
+    result = build_fannie_parquet(
+        fannie_release_directory(arguments.release),
+        fannie_data_root() / "processed" / arguments.release / arguments.dataset_version,
+        arguments.release,
+    )
+    print(json.dumps(result["summary"], indent=2))
+    return 0
+
+
+def _fit_pd_benchmark(arguments: argparse.Namespace) -> int:
+    import json
+    from datetime import date
+
+    root = fannie_data_root()
+    report = fit_segment_pd_benchmark(
+        root
+        / "processed"
+        / arguments.release
+        / arguments.dataset_version
+        / "fannie_monthly.parquet",
+        root / "artifacts" / arguments.release / arguments.model_version,
+        train_end=date.fromisoformat(arguments.train_end),
+        validation_end=date.fromisoformat(arguments.validation_end),
+        smoothing_observations=arguments.smoothing_observations,
+    )
+    print(json.dumps(report, indent=2))
     return 0
 
 
@@ -92,6 +120,22 @@ def parser() -> argparse.ArgumentParser:
         help="write an immutable manifest under the external data root",
     )
     intake.set_defaults(handler=_intake_fannie)
+
+    dataset = commands.add_parser(
+        "build-fannie-dataset", help="create typed modeling Parquet from a Fannie release"
+    )
+    dataset.add_argument("--release", required=True, help="release such as 2026Q1")
+    dataset.add_argument("--dataset-version", default="v0.3.0")
+    dataset.set_defaults(handler=_build_fannie_dataset)
+
+    pd_model = commands.add_parser("fit-fannie-pd-benchmark", help="fit chronological PD benchmark")
+    pd_model.add_argument("--release", required=True)
+    pd_model.add_argument("--dataset-version", default="v0.3.0")
+    pd_model.add_argument("--model-version", default="pd-benchmark-v0.1.0")
+    pd_model.add_argument("--train-end", default="2018-12-31")
+    pd_model.add_argument("--validation-end", default="2022-12-31")
+    pd_model.add_argument("--smoothing-observations", type=float, default=500.0)
+    pd_model.set_defaults(handler=_fit_pd_benchmark)
     return result
 
 
