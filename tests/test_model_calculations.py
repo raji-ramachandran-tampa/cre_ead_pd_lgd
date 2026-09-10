@@ -29,6 +29,7 @@ from cre_expected_loss.models import (
     binary_metrics,
     discounted_workout_lgd,
     empirical_lgd,
+    fit_logistic_pd,
     fit_segment_pd_benchmark,
     funded_term_ead,
     hazards_to_term_structure,
@@ -100,6 +101,23 @@ class ClassicalPDTest(unittest.TestCase):
         self.assertEqual(result.roc_auc, 1.0)
         with self.assertRaises(ValueError):
             binary_metrics([0, 1], [0.1, 1.1])
+
+    def test_weighted_logistic_pd_fit(self) -> None:
+        import pandas as pd
+
+        frame = pd.DataFrame(
+            {"x": [0.0, 1.0, 2.0, 3.0], "segment": ["A", "A", "B", "B"], "event": [0, 0, 1, 1]}
+        )
+        model = fit_logistic_pd(
+            frame,
+            "event",
+            ["x"],
+            ["segment"],
+            class_weight=None,
+            sample_weight=[2.0, 2.0, 1.0, 1.0],
+        )
+        probability = model.predict_proba(frame[["x", "segment"]])[:, 1]
+        self.assertTrue(all(0.0 <= value <= 1.0 for value in probability))
 
 
 class AggregationTest(unittest.TestCase):

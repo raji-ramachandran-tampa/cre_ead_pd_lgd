@@ -61,6 +61,7 @@ def fit_logistic_pd(
     *,
     class_weight: str | dict[int, float] | None = "balanced",
     random_state: int = 20260901,
+    sample_weight: Any | None = None,
 ) -> Any:
     """Fit an interpretable logistic one-period PD benchmark pipeline."""
     if target in {*numeric_features, *categorical_features}:
@@ -102,7 +103,12 @@ def fit_logistic_pd(
             ),
         ]
     )
-    return model.fit(frame[list(numeric_features) + list(categorical_features)], frame[target])
+    fit_parameters = {"model__sample_weight": sample_weight} if sample_weight is not None else {}
+    return model.fit(
+        frame[list(numeric_features) + list(categorical_features)],
+        frame[target],
+        **fit_parameters,
+    )
 
 
 def binary_metrics(actual: Any, probability: Any) -> BinaryMetrics:

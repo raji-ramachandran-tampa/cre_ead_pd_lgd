@@ -35,3 +35,11 @@ common_controls:
   retain_candidate_predictions: true
   prohibit_post_event_features: true
   thresholds: to_be_approved
+
+pd_hazard_development:
+  outcome_version: fannie_outcomes_0.3.0
+  annual_dscr_availability_rule: exact_preceding_calendar_year
+  negative_sample_rate: 0.10
+  negative_sample_weight: 10.0
+  random_state: 20260901
+  status: proposed_not_approved

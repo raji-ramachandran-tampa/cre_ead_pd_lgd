@@ -57,6 +57,25 @@ sharing guide, recovery timing, cost scope, seasoning, and unresolved-case
 treatment. EAD requires event-date reconciliation, contractual amortization,
 prepayment, modification, and facility-scope analysis.
 
+# Classical discrete-time hazard candidate
+
+A weighted logistic monthly hazard candidate was fitted using acquisition LTV,
+underwritten DSCR, prior-calendar-year annual DSCR, note rate, loan age, log
+current UPB, months to maturity, property type, state, amortization type, and
+interest type. Every event was retained; non-events were selected by a
+deterministic ten-percent hash sample and assigned inverse-probability weight.
+
+| Sample | Weighted events | Weighted predicted events | O/E | ROC-AUC | Average precision |
+|---|---:|---:|---:|---:|---:|
+| Training | 663 | 669.02 | 0.991 | 0.948 | 0.01285 |
+| Temporal validation | 37 | 137.76 | 0.269 | 0.820 | 0.00032 |
+| Viewed test | 65 | 198.41 | 0.328 | 0.890 | 0.00092 |
+
+The candidate separates risk but materially overpredicts later-period events.
+Sparse events also make precision low. It requires temporal recalibration,
+uncertainty analysis, macroeconomic features, point-in-time DSCR validation,
+and comparison on a newly defined holdout before any selection decision.
+
 # Next development gates
 
 - Approve or revise the credit-event, exit, cure, and censoring definitions.

@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from .ingestion import build_fannie_parquet, build_release_manifest, write_manifest
-from .models import fit_segment_pd_benchmark
+from .models import fit_fannie_discrete_time_hazard, fit_segment_pd_benchmark
 from .paths import fannie_data_root, fannie_release_directory
 from .publishing import publish_docx
 
@@ -89,6 +89,24 @@ def _fit_pd_benchmark(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _fit_pd_hazard(arguments: argparse.Namespace) -> int:
+    import json
+    from datetime import date
+
+    root = fannie_data_root()
+    data = root / "processed" / arguments.release / arguments.dataset_version
+    report = fit_fannie_discrete_time_hazard(
+        data / "fannie_monthly.parquet",
+        data / "fannie_annual_dscr.parquet",
+        root / "artifacts" / arguments.release / arguments.model_version,
+        train_end=date.fromisoformat(arguments.train_end),
+        validation_end=date.fromisoformat(arguments.validation_end),
+        negative_sample_rate=arguments.negative_sample_rate,
+    )
+    print(json.dumps(report, indent=2))
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     """Create the command parser."""
     result = argparse.ArgumentParser(prog="cre-el")
@@ -136,6 +154,15 @@ def parser() -> argparse.ArgumentParser:
     pd_model.add_argument("--validation-end", default="2022-12-31")
     pd_model.add_argument("--smoothing-observations", type=float, default=500.0)
     pd_model.set_defaults(handler=_fit_pd_benchmark)
+
+    hazard = commands.add_parser("fit-fannie-pd-hazard", help="fit classical logistic hazard")
+    hazard.add_argument("--release", required=True)
+    hazard.add_argument("--dataset-version", default="v0.3.0")
+    hazard.add_argument("--model-version", default="pd-hazard-v0.1.1")
+    hazard.add_argument("--train-end", default="2018-12-31")
+    hazard.add_argument("--validation-end", default="2022-12-31")
+    hazard.add_argument("--negative-sample-rate", type=float, default=0.10)
+    hazard.set_defaults(handler=_fit_pd_hazard)
     return result
 
 
