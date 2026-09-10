@@ -7,16 +7,13 @@ from pathlib import Path
 
 
 FANNIE_ROOT_ENV = "FANNIE_MFLPD_ROOT"
+DEFAULT_FANNIE_DATA_ROOT = Path(r"C:\Users\Rajir\data\fanniemae")
 
 
 def fannie_data_root() -> Path:
-    """Return the external Fannie data root configured by the environment."""
+    """Return the configured Fannie root or the project user's local default."""
     configured = os.environ.get(FANNIE_ROOT_ENV)
-    if not configured:
-        raise RuntimeError(
-            f"Set {FANNIE_ROOT_ENV} to the external Fannie Mae data directory"
-        )
-    return Path(configured).expanduser().resolve()
+    return Path(configured).expanduser().resolve() if configured else DEFAULT_FANNIE_DATA_ROOT
 
 
 def fannie_release_directory(release: str) -> Path:
@@ -26,4 +23,3 @@ def fannie_release_directory(release: str) -> Path:
     if release[5] not in "1234":
         raise ValueError("release quarter must be Q1 through Q4")
     return fannie_data_root() / "raw" / release
-

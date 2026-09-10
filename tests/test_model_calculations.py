@@ -127,8 +127,11 @@ class ContractAndFeatureTest(unittest.TestCase):
                 fannie_release_directory("2026Q1"),
                 Path(configured).resolve() / "raw" / "2026Q1",
             )
-        with patch.dict("os.environ", {}, clear=True), self.assertRaises(RuntimeError):
-            fannie_data_root()
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertEqual(
+                fannie_data_root(),
+                Path(r"C:\Users\Rajir\data\fanniemae"),
+            )
 
     def test_invalid_fannie_release_fails(self) -> None:
         with patch.dict("os.environ", {"FANNIE_MFLPD_ROOT": str(Path.cwd())}):

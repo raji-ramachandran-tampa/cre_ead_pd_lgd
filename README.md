@@ -36,9 +36,8 @@ fitted, validated, or approved model.
 - `data/raw`, `data/interim`, `data/processed` — ignored local data layers;
   only directory placeholders are versioned.
 
-Restricted Fannie Mae loan data use the external root identified by
-`FANNIE_MFLPD_ROOT`; the recommended Windows location is
-`C:/Users/Rajir/data/fanniemae`. See `.env.example` and
+Restricted Fannie Mae loan data default to `C:/Users/Rajir/data/fanniemae`.
+Set `FANNIE_MFLPD_ROOT` only when you need to override that location. See `.env.example` and
 `config/data_locations.yaml`. Do not place Data Dynamics credentials in project
 files.
 
