@@ -20,6 +20,7 @@ from .ingestion import (
 from .models import fit_fannie_discrete_time_hazard, fit_segment_pd_benchmark
 from .paths import fannie_data_root, fannie_release_directory, macro_data_root
 from .publishing import publish_docx
+from .validation import compare_pd_candidates
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
@@ -202,6 +203,18 @@ def _fit_pd_vintage(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _compare_pd(arguments: argparse.Namespace) -> int:
+    import json
+
+    root = fannie_data_root()
+    report = compare_pd_candidates(
+        root / "artifacts" / arguments.release,
+        root / "comparisons" / arguments.release / arguments.comparison_version,
+    )
+    print(json.dumps(report["assessment"], indent=2))
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     """Create the command parser."""
     result = argparse.ArgumentParser(prog="cre-el")
@@ -309,6 +322,13 @@ def parser() -> argparse.ArgumentParser:
     vintage_model.add_argument("--validation-end", default="2022-12-31")
     vintage_model.add_argument("--negative-sample-rate", type=float, default=0.10)
     vintage_model.set_defaults(handler=_fit_pd_vintage)
+
+    comparison = commands.add_parser(
+        "compare-fannie-pd", help="compare baseline, revised-macro, and vintage PD candidates"
+    )
+    comparison.add_argument("--release", required=True)
+    comparison.add_argument("--comparison-version", default="pd-comparison-v0.1.0")
+    comparison.set_defaults(handler=_compare_pd)
     return result
 
 

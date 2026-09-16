@@ -134,3 +134,14 @@ series. `DGS10` is excluded because FRED reports that it does not exist in
 ALFRED. Other macro series are excluded from this run because they are not
 features in the selected labor challenger. No current revised value is silently
 substituted for a missing vintage series.
+
+# Reproducible candidate comparison
+
+The `compare-fannie-pd` command compares the baseline, latest-revised macro,
+and initial-release vintage candidates using their common chronological samples.
+It writes JSON, CSV, and Markdown evidence covering discrimination, aggregate
+calibration, proper scoring rules, temporal metric changes, and standardized
+coefficient diagnostics. The comparison deliberately does not select or approve
+a model. Row-level reliability curves and calibration slope/intercept remain a
+documented enhancement because the current artifacts retain aggregate metrics
+rather than prediction-level results.

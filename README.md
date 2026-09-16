@@ -59,6 +59,9 @@ cre-el fit-fannie-pd-macro --release 2026Q1 --snapshot-date 2026-09-16
 cre-el download-alfred --snapshot-date 2026-09-16
 cre-el build-alfred --snapshot-date 2026-09-16
 cre-el fit-fannie-pd-vintage --release 2026Q1 --snapshot-date 2026-09-16
+
+# Compare fitted baseline, revised-macro, and vintage-aware candidates
+cre-el compare-fannie-pd --release 2026Q1
 ```
 
 The data and modeling application runs entirely in the active Python virtual
