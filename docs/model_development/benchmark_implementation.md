@@ -84,3 +84,34 @@ and comparison on a newly defined holdout before any selection decision.
 - Add macroeconomic vintages and a discrete-time hazard GLM primary candidate.
 - Develop resolved-case LGD and event-date EAD samples before fitting severity models.
 - Define a new final holdout before model selection because the current test metrics have been viewed.
+
+# Macroeconomic candidate experiment
+
+A dated FRED snapshot retrieved on September 16, 2026 contains unemployment,
+the Chicago Fed National Financial Conditions Index, the 10-year Treasury
+yield, the monthly Baa-to-Treasury spread, national rental vacancy, and rent
+CPI. The monthly panel applies one-month lags to monthly, weekly, and daily
+series and a two-month lag to quarterly rental vacancy. These are conservative
+proposed availability rules. The snapshot contains latest-revised observations,
+not historical vintages, so it is not yet point-in-time development evidence.
+
+| Candidate | Validation O/E | Validation ROC-AUC | Validation log loss | Viewed-test O/E |
+|---|---:|---:|---:|---:|
+| No macro | 0.269 | 0.820 | 0.000389 | 0.327 |
+| Labor | 0.550 | 0.820 | 0.000354 | 1.841 |
+| Credit conditions | 0.213 | 0.823 | 0.000411 | 0.632 |
+| Multifamily market | 0.332 | 0.822 | 0.000369 | 1.046 |
+| Labor plus credit | 0.202 | 0.816 | 0.000431 | 1.784 |
+| Labor plus multifamily | 0.285 | 0.811 | 0.000400 | 1.361 |
+| All macro | 0.150 | 0.813 | 0.000486 | 1.276 |
+
+The labor-only candidate is retained as the validation-selected macro
+challenger because it provides the best validation calibration and log loss
+without reducing discrimination. Its reversal to underprediction in the viewed
+test period demonstrates regime instability. It is not selected as the primary
+model. The near-one test O/E of the multifamily-market subset is diagnostic
+only and cannot be used for selection because the test results have been viewed.
+
+Required next work is vintage-aware retrieval, rolling-origin backtesting,
+confidence intervals for sparse events, state-level unemployment, geographic
+multifamily supply, and a newly defined prospective holdout.

@@ -7,9 +7,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .ingestion import build_fannie_parquet, build_release_manifest, write_manifest
+from .ingestion import (
+    build_fannie_parquet,
+    build_monthly_macro_features,
+    build_release_manifest,
+    download_fred_snapshot,
+    write_manifest,
+)
 from .models import fit_fannie_discrete_time_hazard, fit_segment_pd_benchmark
-from .paths import fannie_data_root, fannie_release_directory
+from .paths import fannie_data_root, fannie_release_directory, macro_data_root
 from .publishing import publish_docx
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -107,6 +113,46 @@ def _fit_pd_hazard(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _download_macro(arguments: argparse.Namespace) -> int:
+    import json
+
+    print(json.dumps(download_fred_snapshot(macro_data_root(), arguments.snapshot_date), indent=2))
+    return 0
+
+
+def _build_macro(arguments: argparse.Namespace) -> int:
+    import json
+
+    print(
+        json.dumps(
+            build_monthly_macro_features(macro_data_root(), arguments.snapshot_date), indent=2
+        )
+    )
+    return 0
+
+
+def _fit_pd_macro(arguments: argparse.Namespace) -> int:
+    import json
+    from datetime import date
+
+    root = fannie_data_root()
+    data = root / "processed" / arguments.release / arguments.dataset_version
+    macro = macro_data_root() / "processed" / arguments.snapshot_date / "macro_monthly.parquet"
+    report = fit_fannie_discrete_time_hazard(
+        data / "fannie_monthly.parquet",
+        data / "fannie_annual_dscr.parquet",
+        root / "artifacts" / arguments.release / arguments.model_version,
+        train_end=date.fromisoformat(arguments.train_end),
+        validation_end=date.fromisoformat(arguments.validation_end),
+        negative_sample_rate=arguments.negative_sample_rate,
+        macro_parquet=macro,
+        macro_features=tuple(arguments.macro_features.split(",")),
+        model_version="0.2.0-development-macro",
+    )
+    print(json.dumps(report, indent=2))
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     """Create the command parser."""
     result = argparse.ArgumentParser(prog="cre-el")
@@ -163,6 +209,33 @@ def parser() -> argparse.ArgumentParser:
     hazard.add_argument("--validation-end", default="2022-12-31")
     hazard.add_argument("--negative-sample-rate", type=float, default=0.10)
     hazard.set_defaults(handler=_fit_pd_hazard)
+
+    macro_download = commands.add_parser(
+        "download-macro", help="download an immutable FRED snapshot"
+    )
+    macro_download.add_argument("--snapshot-date", required=True)
+    macro_download.set_defaults(handler=_download_macro)
+
+    macro_build = commands.add_parser("build-macro", help="build lagged monthly macro features")
+    macro_build.add_argument("--snapshot-date", required=True)
+    macro_build.set_defaults(handler=_build_macro)
+
+    macro_model = commands.add_parser("fit-fannie-pd-macro", help="fit hazard with macro features")
+    macro_model.add_argument("--release", required=True)
+    macro_model.add_argument("--snapshot-date", required=True)
+    macro_model.add_argument("--dataset-version", default="v0.3.0")
+    macro_model.add_argument("--model-version", default="pd-hazard-macro-v0.2.0")
+    macro_model.add_argument("--train-end", default="2018-12-31")
+    macro_model.add_argument("--validation-end", default="2022-12-31")
+    macro_model.add_argument("--negative-sample-rate", type=float, default=0.10)
+    macro_model.add_argument(
+        "--macro-features",
+        default=(
+            "unemployment_rate,unemployment_change_12m,financial_conditions,"
+            "treasury_10y,baa_treasury_spread,rental_vacancy_rate,rent_cpi_yoy"
+        ),
+    )
+    macro_model.set_defaults(handler=_fit_pd_macro)
     return result
 
 

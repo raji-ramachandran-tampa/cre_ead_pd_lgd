@@ -5,9 +5,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-
 FANNIE_ROOT_ENV = "FANNIE_MFLPD_ROOT"
 DEFAULT_FANNIE_DATA_ROOT = Path(r"C:\Users\Rajir\data\fanniemae")
+DEFAULT_MACRO_DATA_ROOT = Path(r"C:\Users\Rajir\data\macroeconomic")
 
 
 def fannie_data_root() -> Path:
@@ -23,3 +23,9 @@ def fannie_release_directory(release: str) -> Path:
     if release[5] not in "1234":
         raise ValueError("release quarter must be Q1 through Q4")
     return fannie_data_root() / "raw" / release
+
+
+def macro_data_root() -> Path:
+    """Return the external macroeconomic data root."""
+    configured = os.environ.get("CRE_MACRO_DATA_ROOT")
+    return Path(configured).expanduser().resolve() if configured else DEFAULT_MACRO_DATA_ROOT

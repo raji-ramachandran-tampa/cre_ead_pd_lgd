@@ -43,3 +43,7 @@ pd_hazard_development:
   negative_sample_weight: 10.0
   random_state: 20260901
   status: proposed_not_approved
+  macro_snapshot: 2026-09-16
+  macro_vintage_status: latest_revised_not_historical_vintage
+  macro_candidate_selected_on_validation: labor_only
+  macro_candidate_features: [unemployment_rate, unemployment_change_12m]

@@ -53,6 +53,9 @@ cre-el intake-fannie --release 2026Q1 --count-rows --write-manifest
 cre-el build-fannie-dataset --release 2026Q1
 cre-el fit-fannie-pd-benchmark --release 2026Q1
 cre-el fit-fannie-pd-hazard --release 2026Q1
+cre-el download-macro --snapshot-date 2026-09-16
+cre-el build-macro --snapshot-date 2026-09-16
+cre-el fit-fannie-pd-macro --release 2026Q1 --snapshot-date 2026-09-16
 ```
 
 The data and modeling application runs entirely in the active Python virtual

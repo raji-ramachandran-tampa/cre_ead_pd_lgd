@@ -26,6 +26,15 @@ CATEGORICAL_FEATURES = (
     "amortization_type",
     "interest_type",
 )
+MACRO_FEATURES = (
+    "unemployment_rate",
+    "unemployment_change_12m",
+    "financial_conditions",
+    "treasury_10y",
+    "baa_treasury_spread",
+    "rental_vacancy_rate",
+    "rent_cpi_yoy",
+)
 
 
 def _sql_path(path: Path) -> str:
@@ -61,6 +70,9 @@ def fit_fannie_discrete_time_hazard(
     validation_end: date,
     negative_sample_rate: float = 0.10,
     random_state: int = 20260901,
+    macro_parquet: Path | None = None,
+    macro_features: tuple[str, ...] = MACRO_FEATURES,
+    model_version: str = "0.1.1-development",
 ) -> dict[str, Any]:
     """Fit a weighted logistic monthly hazard using chronological samples.
 
@@ -75,6 +87,10 @@ def fit_fannie_discrete_time_hazard(
     for path in (monthly_parquet, annual_dscr_parquet):
         if not Path(path).is_file():
             raise FileNotFoundError(path)
+    if macro_parquet is not None and not Path(macro_parquet).is_file():
+        raise FileNotFoundError(macro_parquet)
+    if set(macro_features) - set(MACRO_FEATURES):
+        raise ValueError("Unknown macro feature requested")
     artifact_directory = Path(artifact_directory)
     artifact_directory.mkdir(parents=True, exist_ok=True)
     model_path = artifact_directory / "model.joblib"
@@ -84,6 +100,14 @@ def fit_fannie_discrete_time_hazard(
         raise FileExistsError(f"Model artifact already exists: {artifact_directory}")
 
     threshold = round(negative_sample_rate * 10_000)
+    macro_columns = ", ".join(f"x.{name}" for name in macro_features)
+    macro_select = f", {macro_columns}" if macro_parquet is not None else ""
+    macro_join = (
+        f"LEFT JOIN read_parquet('{_sql_path(Path(macro_parquet))}') x "
+        "ON x.as_of_date=m.reporting_date"
+        if macro_parquet is not None
+        else ""
+    )
     connection = _duckdb().connect()
     try:
         connection.execute(
@@ -93,7 +117,7 @@ def fit_fannie_discrete_time_hazard(
               SELECT loan_id, dscr_year, AVG(annual_dscr) annual_dscr
               FROM read_parquet('{_sql_path(Path(annual_dscr_parquet))}') GROUP BY ALL
             ), risk_set AS (
-              SELECT m.*,
+              SELECT m.*{macro_select},
                      d.annual_dscr AS annual_dscr_lag1,
                      LN(1 + GREATEST(COALESCE(m.current_upb, 0), 0)) AS log_current_upb,
                      DATE_DIFF('month', m.reporting_date, m.maturity_date) AS months_to_maturity,
@@ -103,6 +127,7 @@ def fit_fannie_discrete_time_hazard(
               FROM read_parquet('{_sql_path(Path(monthly_parquet))}') m
               LEFT JOIN dscr d ON m.loan_id=d.loan_id
                               AND d.dscr_year=EXTRACT(YEAR FROM m.reporting_date)-1
+              {macro_join}
               WHERE m.reporting_date IS NOT NULL
                 AND (m.first_credit_event_date IS NULL OR m.reporting_date <= m.first_credit_event_date)
             )
@@ -123,10 +148,11 @@ def fit_fannie_discrete_time_hazard(
         connection.close()
 
     train = frames["train"]
+    numeric_features = NUMERIC_FEATURES + (macro_features if macro_parquet is not None else ())
     model = fit_logistic_pd(
         train,
         "proposed_default_event",
-        NUMERIC_FEATURES,
+        numeric_features,
         CATEGORICAL_FEATURES,
         class_weight=None,
         random_state=random_state,
@@ -141,7 +167,7 @@ def fit_fannie_discrete_time_hazard(
         writer = csv.writer(stream)
         writer.writerow(["transformed_feature", "log_odds_coefficient"])
         writer.writerows(zip(feature_names, coefficients, strict=True))
-    features = list(NUMERIC_FEATURES + CATEGORICAL_FEATURES)
+    features = list(numeric_features + CATEGORICAL_FEATURES)
     metrics = {}
     for sample, frame in frames.items():
         probability = model.predict_proba(frame[features])[:, 1]
@@ -150,7 +176,7 @@ def fit_fannie_discrete_time_hazard(
         )
     report = {
         "model_id": "fannie_logistic_discrete_time_hazard",
-        "model_version": "0.1.1-development",
+        "model_version": model_version,
         "status": "proposed_not_approved",
         "created_at_utc": datetime.now(UTC).isoformat(),
         "target_version": "fannie_outcomes_0.3.0",
@@ -160,15 +186,20 @@ def fit_fannie_discrete_time_hazard(
         "negative_sample_rate": negative_sample_rate,
         "negative_sample_weight": 1.0 / negative_sample_rate,
         "random_state": random_state,
-        "numeric_features": list(NUMERIC_FEATURES),
+        "numeric_features": list(numeric_features),
         "categorical_features": list(CATEGORICAL_FEATURES),
         "coefficient_artifact": coefficient_path.name,
         "annual_dscr_availability_rule": "exact preceding calendar year; proposed",
+        "macro_snapshot": str(Path(macro_parquet).resolve()) if macro_parquet else None,
         "metrics": metrics,
         "limitations": [
             "Default and DSCR availability rules are proposed, not approved.",
             "Sampling-weighted metrics are estimates of full-population metrics.",
-            "No macroeconomic or property-market time series are included.",
+            (
+                "Macroeconomic inputs are latest-revised series, not historical vintages."
+                if macro_parquet
+                else "No macroeconomic or property-market time series are included."
+            ),
             "Fannie multifamily results cannot be generalized to all CRE.",
             "The 2023-2026 period has already been viewed and is not a pristine final holdout.",
         ],

@@ -24,6 +24,7 @@ from cre_expected_loss.features import (
 )
 from cre_expected_loss.ingestion import csv_to_parquet
 from cre_expected_loss.ingestion.fannie import inspect_zip, write_manifest
+from cre_expected_loss.ingestion.macro import FRED_SERIES, build_monthly_macro_features
 from cre_expected_loss.models import (
     WorkoutCashFlow,
     binary_metrics,
@@ -236,6 +237,23 @@ class FannieIntakeTest(unittest.TestCase):
             write_manifest({"release": "2026Q1"}, destination)
             with self.assertRaises(FileExistsError):
                 write_manifest({"release": "2026Q1"}, destination)
+
+
+class MacroIntakeTest(unittest.TestCase):
+    def test_monthly_macro_panel_applies_lags(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw = root / "raw" / "fred" / "2026-01-01"
+            raw.mkdir(parents=True)
+            for series_id in FRED_SERIES:
+                (raw / f"{series_id}.csv").write_text(
+                    f"observation_date,{series_id}\n2024-01-01,1.0\n2025-01-01,2.0\n",
+                    encoding="utf-8",
+                )
+            result = build_monthly_macro_features(root, "2026-01-01")
+            self.assertEqual(result["series"]["UNRATE"]["first_available_month"], "2024-02-01")
+            self.assertEqual(result["series"]["RRVRUSQ156N"]["first_available_month"], "2024-03-01")
+            self.assertTrue((root / "processed" / "2026-01-01" / "macro_monthly.parquet").is_file())
 
 
 if __name__ == "__main__":
