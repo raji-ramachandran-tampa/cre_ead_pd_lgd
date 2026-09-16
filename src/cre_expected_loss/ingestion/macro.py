@@ -10,6 +10,7 @@ import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from urllib.error import HTTPError
 
 FRED_SERIES = {
     "UNRATE": {"feature": "unemployment_rate", "frequency": "monthly", "lag_months": 1},
@@ -134,7 +135,7 @@ def download_alfred_initial_releases(
     destination = Path(root) / "raw" / "alfred_initial" / snapshot_date
     destination.mkdir(parents=True, exist_ok=True)
     manifest_path = Path(root) / "manifests" / f"alfred_initial_{snapshot_date}.json"
-    if manifest_path.exists() or any(destination.iterdir()):
+    if manifest_path.exists():
         raise FileExistsError(f"ALFRED snapshot already exists: {snapshot_date}")
     files = []
     for series_id, specification in FRED_SERIES.items():
@@ -157,11 +158,25 @@ def download_alfred_initial_releases(
         )
         request = urllib.request.Request(url, headers={"User-Agent": "cre-expected-loss/0.1"})
         path = destination / f"{series_id}.json"
-        with urllib.request.urlopen(request, timeout=90) as response:
-            payload = json.loads(response.read().decode("utf-8"))
+        if path.exists():
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        else:
+            try:
+                with urllib.request.urlopen(request, timeout=90) as response:
+                    payload = json.loads(response.read().decode("utf-8"))
+            except HTTPError as exc:
+                body = exc.read().decode("utf-8", errors="replace")
+                try:
+                    detail = json.loads(body).get("error_message", body)
+                except json.JSONDecodeError:
+                    detail = body
+                raise RuntimeError(
+                    f"ALFRED rejected series {series_id} with HTTP {exc.code}: {detail}"
+                ) from exc
         if "observations" not in payload:
             raise RuntimeError(f"ALFRED response for {series_id} has no observations")
-        path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        if not path.exists():
+            path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         files.append(
             {
                 "series_id": series_id,
