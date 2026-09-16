@@ -7,7 +7,7 @@ import json
 import re
 import urllib.parse
 import urllib.request
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError
@@ -139,40 +139,62 @@ def download_alfred_initial_releases(
         raise FileExistsError(f"ALFRED snapshot already exists: {snapshot_date}")
     files = []
     for series_id, specification in FRED_SERIES.items():
-        query = urllib.parse.urlencode(
-            {
-                "series_id": series_id,
-                "api_key": api_key,
-                "file_type": "json",
-                "output_type": 4,
-                "realtime_start": "1998-01-01",
-                "realtime_end": snapshot_date,
-                "observation_start": "1998-01-01",
-                "observation_end": snapshot_date,
-            }
-        )
-        url = f"https://api.stlouisfed.org/fred/series/observations?{query}"
         public_url = (
             "https://api.stlouisfed.org/fred/series/observations?"
             f"series_id={series_id}&file_type=json&output_type=4"
         )
-        request = urllib.request.Request(url, headers={"User-Agent": "cre-expected-loss/0.1"})
         path = destination / f"{series_id}.json"
         if path.exists():
             payload = json.loads(path.read_text(encoding="utf-8"))
         else:
-            try:
-                with urllib.request.urlopen(request, timeout=90) as response:
-                    payload = json.loads(response.read().decode("utf-8"))
-            except HTTPError as exc:
-                body = exc.read().decode("utf-8", errors="replace")
+            start = date(1998, 1, 1)
+            final = date.fromisoformat(snapshot_date)
+            observations: list[dict[str, Any]] = []
+            chunks = 0
+            while start <= final:
+                end = min(date(start.year + 4, 12, 31), final)
+                parameters = {
+                    "series_id": series_id,
+                    "api_key": api_key,
+                    "file_type": "json",
+                    "output_type": 4,
+                    "realtime_start": start.isoformat(),
+                    "realtime_end": end.isoformat(),
+                    "observation_start": "1998-01-01",
+                    "observation_end": snapshot_date,
+                }
+                url = (
+                    "https://api.stlouisfed.org/fred/series/observations?"
+                    + urllib.parse.urlencode(parameters)
+                )
+                request = urllib.request.Request(
+                    url, headers={"User-Agent": "cre-expected-loss/0.1"}
+                )
                 try:
-                    detail = json.loads(body).get("error_message", body)
-                except json.JSONDecodeError:
-                    detail = body
-                raise RuntimeError(
-                    f"ALFRED rejected series {series_id} with HTTP {exc.code}: {detail}"
-                ) from exc
+                    with urllib.request.urlopen(request, timeout=90) as response:
+                        chunk_payload = json.loads(response.read().decode("utf-8"))
+                except HTTPError as exc:
+                    body = exc.read().decode("utf-8", errors="replace")
+                    try:
+                        detail = json.loads(body).get("error_message", body)
+                    except json.JSONDecodeError:
+                        detail = body
+                    raise RuntimeError(
+                        f"ALFRED rejected series {series_id}, window {start} to {end}, "
+                        f"with HTTP {exc.code}: {detail}"
+                    ) from exc
+                observations.extend(chunk_payload.get("observations", []))
+                chunks += 1
+                start = date(end.year + 1, 1, 1)
+            unique = {(item["date"], item["realtime_start"]): item for item in observations}
+            payload = {
+                "series_id": series_id,
+                "output_type": 4,
+                "retrieval_windows": chunks,
+                "observations": sorted(
+                    unique.values(), key=lambda item: (item["date"], item["realtime_start"])
+                ),
+            }
         if "observations" not in payload:
             raise RuntimeError(f"ALFRED response for {series_id} has no observations")
         if not path.exists():
