@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 from .ingestion import (
+    build_alfred_initial_release_features,
     build_fannie_parquet,
     build_monthly_macro_features,
     build_release_manifest,
+    download_alfred_initial_releases,
     download_fred_snapshot,
     write_manifest,
 )
@@ -131,6 +134,25 @@ def _build_macro(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _download_alfred(arguments: argparse.Namespace) -> int:
+    import json
+
+    api_key = os.environ.get("FRED_API_KEY")
+    if not api_key:
+        raise RuntimeError("Set FRED_API_KEY before downloading ALFRED vintages")
+    report = download_alfred_initial_releases(macro_data_root(), arguments.snapshot_date, api_key)
+    print(json.dumps(report, indent=2))
+    return 0
+
+
+def _build_alfred(arguments: argparse.Namespace) -> int:
+    import json
+
+    report = build_alfred_initial_release_features(macro_data_root(), arguments.snapshot_date)
+    print(json.dumps(report, indent=2))
+    return 0
+
+
 def _fit_pd_macro(arguments: argparse.Namespace) -> int:
     import json
     from datetime import date
@@ -148,6 +170,33 @@ def _fit_pd_macro(arguments: argparse.Namespace) -> int:
         macro_parquet=macro,
         macro_features=tuple(arguments.macro_features.split(",")),
         model_version="0.2.0-development-macro",
+    )
+    print(json.dumps(report, indent=2))
+    return 0
+
+
+def _fit_pd_vintage(arguments: argparse.Namespace) -> int:
+    import json
+    from datetime import date
+
+    root = fannie_data_root()
+    data = root / "processed" / arguments.release / arguments.dataset_version
+    macro = (
+        macro_data_root()
+        / "processed"
+        / f"{arguments.snapshot_date}-alfred-initial"
+        / "macro_monthly.parquet"
+    )
+    report = fit_fannie_discrete_time_hazard(
+        data / "fannie_monthly.parquet",
+        data / "fannie_annual_dscr.parquet",
+        root / "artifacts" / arguments.release / arguments.model_version,
+        train_end=date.fromisoformat(arguments.train_end),
+        validation_end=date.fromisoformat(arguments.validation_end),
+        negative_sample_rate=arguments.negative_sample_rate,
+        macro_parquet=macro,
+        macro_features=("unemployment_rate", "unemployment_change_12m"),
+        model_version="0.3.0-development-initial-release",
     )
     print(json.dumps(report, indent=2))
     return 0
@@ -220,6 +269,18 @@ def parser() -> argparse.ArgumentParser:
     macro_build.add_argument("--snapshot-date", required=True)
     macro_build.set_defaults(handler=_build_macro)
 
+    alfred_download = commands.add_parser(
+        "download-alfred", help="download initial-release macro vintages"
+    )
+    alfred_download.add_argument("--snapshot-date", required=True)
+    alfred_download.set_defaults(handler=_download_alfred)
+
+    alfred_build = commands.add_parser(
+        "build-alfred", help="build initial-release monthly macro features"
+    )
+    alfred_build.add_argument("--snapshot-date", required=True)
+    alfred_build.set_defaults(handler=_build_alfred)
+
     macro_model = commands.add_parser("fit-fannie-pd-macro", help="fit hazard with macro features")
     macro_model.add_argument("--release", required=True)
     macro_model.add_argument("--snapshot-date", required=True)
@@ -236,6 +297,18 @@ def parser() -> argparse.ArgumentParser:
         ),
     )
     macro_model.set_defaults(handler=_fit_pd_macro)
+
+    vintage_model = commands.add_parser(
+        "fit-fannie-pd-vintage", help="fit labor challenger with initial-release vintages"
+    )
+    vintage_model.add_argument("--release", required=True)
+    vintage_model.add_argument("--snapshot-date", required=True)
+    vintage_model.add_argument("--dataset-version", default="v0.3.0")
+    vintage_model.add_argument("--model-version", default="pd-hazard-alfred-v0.3.0")
+    vintage_model.add_argument("--train-end", default="2018-12-31")
+    vintage_model.add_argument("--validation-end", default="2022-12-31")
+    vintage_model.add_argument("--negative-sample-rate", type=float, default=0.10)
+    vintage_model.set_defaults(handler=_fit_pd_vintage)
     return result
 
 

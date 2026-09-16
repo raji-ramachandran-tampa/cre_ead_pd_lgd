@@ -115,3 +115,15 @@ only and cannot be used for selection because the test results have been viewed.
 Required next work is vintage-aware retrieval, rolling-origin backtesting,
 confidence intervals for sparse events, state-level unemployment, geographic
 multifamily supply, and a newly defined prospective holdout.
+
+## Vintage-aware implementation status
+
+The repository now implements ALFRED `output_type=4`, which retrieves each
+observation's initial release value. The API key is read only from the
+`FRED_API_KEY` environment variable and is excluded from raw payloads,
+manifests, logs, artifacts, and Git. The processed panel applies the same
+documented reporting lags and is stored separately from latest-revised data.
+
+Execution is pending a user-provided FRED API key. Until the initial-release
+snapshot is downloaded and the labor challenger is rerun, the latest-revised
+macro experiment remains diagnostic rather than point-in-time evidence.

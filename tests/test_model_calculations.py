@@ -24,7 +24,12 @@ from cre_expected_loss.features import (
 )
 from cre_expected_loss.ingestion import csv_to_parquet
 from cre_expected_loss.ingestion.fannie import inspect_zip, write_manifest
-from cre_expected_loss.ingestion.macro import FRED_SERIES, build_monthly_macro_features
+from cre_expected_loss.ingestion.macro import (
+    FRED_SERIES,
+    build_alfred_initial_release_features,
+    build_monthly_macro_features,
+    download_alfred_initial_releases,
+)
 from cre_expected_loss.models import (
     WorkoutCashFlow,
     binary_metrics,
@@ -254,6 +259,43 @@ class MacroIntakeTest(unittest.TestCase):
             self.assertEqual(result["series"]["UNRATE"]["first_available_month"], "2024-02-01")
             self.assertEqual(result["series"]["RRVRUSQ156N"]["first_available_month"], "2024-03-01")
             self.assertTrue((root / "processed" / "2026-01-01" / "macro_monthly.parquet").is_file())
+
+    def test_alfred_initial_release_panel(self) -> None:
+        import json
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw = root / "raw" / "alfred_initial" / "2026-01-01"
+            raw.mkdir(parents=True)
+            observations = {
+                "observations": [
+                    {
+                        "date": "2024-01-01",
+                        "realtime_start": "2024-02-01",
+                        "realtime_end": "2024-02-29",
+                        "value": "1.0",
+                    },
+                    {
+                        "date": "2025-01-01",
+                        "realtime_start": "2025-02-01",
+                        "realtime_end": "2025-02-28",
+                        "value": "2.0",
+                    },
+                ]
+            }
+            for series_id in FRED_SERIES:
+                (raw / f"{series_id}.json").write_text(json.dumps(observations), encoding="utf-8")
+            result = build_alfred_initial_release_features(root, "2026-01-01")
+            self.assertEqual(result["vintage_status"], "initial_release_only")
+            self.assertTrue(
+                (
+                    root / "processed" / "2026-01-01-alfred-initial" / "macro_monthly.parquet"
+                ).is_file()
+            )
+
+    def test_alfred_key_is_validated_before_network_use(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, self.assertRaises(ValueError):
+            download_alfred_initial_releases(Path(directory), "2026-01-01", "not-a-key")
 
 
 if __name__ == "__main__":
