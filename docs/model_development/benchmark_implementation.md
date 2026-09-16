@@ -127,3 +127,10 @@ documented reporting lags and is stored separately from latest-revised data.
 Execution is pending a user-provided FRED API key. Until the initial-release
 snapshot is downloaded and the labor challenger is rerun, the latest-revised
 macro experiment remains diagnostic rather than point-in-time evidence.
+
+The initial vintage run is intentionally restricted to `UNRATE`, which drives
+the validation-selected labor challenger, and `NFCI` as a supported reference
+series. `DGS10` is excluded because FRED reports that it does not exist in
+ALFRED. Other macro series are excluded from this run because they are not
+features in the selected labor challenger. No current revised value is silently
+substituted for a missing vintage series.

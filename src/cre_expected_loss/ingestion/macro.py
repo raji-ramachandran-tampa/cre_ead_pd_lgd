@@ -20,6 +20,7 @@ FRED_SERIES = {
     "RRVRUSQ156N": {"feature": "rental_vacancy_rate", "frequency": "quarterly", "lag_months": 2},
     "CUSR0000SEHA": {"feature": "rent_cpi", "frequency": "monthly", "lag_months": 1},
 }
+ALFRED_INITIAL_SERIES = {series_id: FRED_SERIES[series_id] for series_id in ("UNRATE", "NFCI")}
 
 
 def _sha256(path: Path) -> str:
@@ -138,7 +139,7 @@ def download_alfred_initial_releases(
     if manifest_path.exists():
         raise FileExistsError(f"ALFRED snapshot already exists: {snapshot_date}")
     files = []
-    for series_id, specification in FRED_SERIES.items():
+    for series_id, specification in ALFRED_INITIAL_SERIES.items():
         public_url = (
             "https://api.stlouisfed.org/fred/series/observations?"
             f"series_id={series_id}&file_type=json&output_type=4"
@@ -215,7 +216,8 @@ def download_alfred_initial_releases(
         "source": "FRED/ALFRED series observations API",
         "snapshot_date": snapshot_date,
         "retrieved_at_utc": datetime.now(UTC).isoformat(),
-        "vintage_status": "initial_release_only",
+        "vintage_status": "initial_release_only_selected_series",
+        "scope": "UNRATE labor challenger plus NFCI reference; unsupported series excluded",
         "api_key_persisted": False,
         "files": files,
     }
@@ -237,7 +239,7 @@ def build_alfred_initial_release_features(root: Path, snapshot_date: str) -> dic
         raise FileExistsError(f"Processed ALFRED snapshot already exists: {snapshot_date}")
     panel = pd.DataFrame({"as_of_date": pd.date_range("2000-01-01", snapshot_date, freq="MS")})
     summary = {}
-    for series_id, specification in FRED_SERIES.items():
+    for series_id, specification in ALFRED_INITIAL_SERIES.items():
         payload = json.loads((raw / f"{series_id}.json").read_text(encoding="utf-8"))
         frame = pd.DataFrame(payload["observations"])
         frame["observation_date"] = pd.to_datetime(frame["date"], errors="coerce")
@@ -261,12 +263,11 @@ def build_alfred_initial_release_features(root: Path, snapshot_date: str) -> dic
             "initial_release_observations": len(frame),
             "nonmissing_months": int(panel[feature].notna().sum()),
         }
-    panel["rent_cpi_yoy"] = panel["rent_cpi"].pct_change(12, fill_method=None) * 100.0
     panel["unemployment_change_12m"] = panel["unemployment_rate"].diff(12)
     panel.to_parquet(parquet_path, index=False)
     report = {
         "snapshot_date": snapshot_date,
-        "vintage_status": "initial_release_only",
+        "vintage_status": "initial_release_only_selected_series",
         "rows": len(panel),
         "series": summary,
         "output": str(parquet_path.resolve()),

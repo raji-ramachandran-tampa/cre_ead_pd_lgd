@@ -286,7 +286,7 @@ class MacroIntakeTest(unittest.TestCase):
             for series_id in FRED_SERIES:
                 (raw / f"{series_id}.json").write_text(json.dumps(observations), encoding="utf-8")
             result = build_alfred_initial_release_features(root, "2026-01-01")
-            self.assertEqual(result["vintage_status"], "initial_release_only")
+            self.assertEqual(result["vintage_status"], "initial_release_only_selected_series")
             self.assertTrue(
                 (
                     root / "processed" / "2026-01-01-alfred-initial" / "macro_monthly.parquet"

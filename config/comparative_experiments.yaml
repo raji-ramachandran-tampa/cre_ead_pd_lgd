@@ -48,4 +48,8 @@ pd_hazard_development:
   macro_candidate_selected_on_validation: labor_only
   macro_candidate_features: [unemployment_rate, unemployment_change_12m]
   vintage_method: alfred_output_type_4_initial_release_only
+  vintage_series: [UNRATE, NFCI]
+  vintage_exclusions:
+    DGS10: not_available_as_alfred_series
+    other_macro_series: not_required_for_validation_selected_labor_challenger
   vintage_execution_status: pending_fred_api_key
