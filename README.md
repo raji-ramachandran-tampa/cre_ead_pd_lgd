@@ -41,6 +41,22 @@ Set `FANNIE_MFLPD_ROOT` only when you need to override that location. See `.env.
 `config/data_locations.yaml`. Do not place Data Dynamics credentials in project
 files.
 
+## Restart in a new AI session
+
+Use the following instruction after clearing or replacing the current
+conversation:
+
+> Open the `cre_ead_pd_lgd` repository and read `AGENTS.md`,
+> `docs/prompts/CRE_PROJECT_META_PROMPT.md`, and
+> `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-01_PHASE_1.md`. Follow the
+> fresh-session protocol in the Phase 1 restart prompt. Begin with a read-only
+> audit and report any inconsistency before continuing development.
+
+The restart prompt is a versioned handoff, not authoritative evidence. Verify
+its status and results against the current repository, external manifests, and
+generated artifacts before relying on them. Raw data and credentials remain
+outside Git.
+
 ## Developer setup
 
 ```powershell
