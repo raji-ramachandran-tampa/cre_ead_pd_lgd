@@ -69,8 +69,8 @@ environment. Pandoc remains an optional external dependency used only when the
 Python `cre-el build-doc` command is asked to publish Markdown as DOCX.
 - `docs/prompts/CRE_PROJECT_META_PROMPT.md` — durable lifecycle instructions for
   future design, coding, validation, monitoring, and documentation work.
-- `docs/prompts/CRE_PROJECT_RESTART_PROMPT.md` — current implementation handoff
-  for restarting the project in a fresh AI session.
+- `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-01_PHASE_1.md` — dated Phase
+  1 implementation handoff for restarting the project in a fresh AI session.
 - `docs/prompts/tasks/` — focused templates for model development, validation,
   ongoing performance assessment, and lifecycle documentation.
 - `AGENTS.md` — repository instructions that apply the meta-prompt to future

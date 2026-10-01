@@ -1,5 +1,9 @@
 # CRE Expected Loss Project Restart Meta-Prompt
 
+**Version date:** 2026-10-01  
+**Extension phase:** Phase 1  
+**Status:** Current restart handoff for classical prototype development
+
 Copy this entire prompt into a new AI session when continuing the project. It
 is a handoff summary, not authoritative evidence. The new session must inspect
 the repository, configuration, tests, external manifests, and generated
