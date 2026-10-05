@@ -270,6 +270,42 @@ and no unsupported compliance, approval, or validation claim remains.
 For artifacts, also check headings, tables, links, accessibility, geometry,
 consistency, placeholders, and visual rendering when available.
 
+## LGD outcome, collateral, and baseline controls
+
+Keep the signed source net-loss ratio, a deliberately nonnegative loss target,
+and discounted economic workout LGD distinct. Preserve source accounting signs;
+negative reported losses may be legitimate gains. Never silently replace them
+with zero, classify them as missing, or change the outcome population.
+
+Separate default onset, observed delinquency, cure, disposition, label
+publication and finalization. A fully-paid terminal record can follow prior
+serious delinquency. Review the history before changing sample eligibility.
+
+For signed hurdle models, zero, sign and magnitude components must recombine
+coherently. Fit preprocessing within training samples and sign components;
+evaluate calibration, magnitudes, combined errors, sparse groups and uncertainty.
+Class weighting or resampling must not silently distort expected-loss probabilities.
+Call an examined later period an out-of-time comparison, not an untouched test.
+
+Separate secured collateral recovery from contractual lender/insurance loss
+allocation. Preserve property-pool linkage, competing claims, priority, costs,
+dates and recoveries. Reconcile shared collateral and global claim limits.
+Never reapply benefits or costs already embedded in net inputs. Acquisition LTV
+is not a current appraisal; post-event valuations and proceeds cannot enter a
+prospective model before availability. Generic pro-rata rules do not establish
+Fannie contract mappings. Synthetic waterfalls are not fitted empirical evidence.
+
+Retain frozen models and outcome versions. Use the latest dated restart handoff
+for current state, verify external manifests, and document superseded artifacts.
+Baselines require reproducible tests, source/configuration provenance, explicit
+limitations and a Git commit/tag. A research baseline is not model selection,
+independent validation, institutional approval or production release.
+
+Keep raw and derived loan-level data, identifiers and restricted case tables
+outside Git; repository documents contain aggregate research evidence only.
+Use pytest for the complete mixed unittest/function-style suite. Never claim
+complete tests from a runner that misses function-style tests.
+
 ## Task interface
 
 ```text

@@ -16,3 +16,9 @@ Repository conventions and approved artifacts
 
 Available templates cover model development, model validation, ongoing
 performance assessment, and lifecycle documentation.
+
+## Current restart handoff
+
+Use `CRE_PROJECT_RESTART_PROMPT_2026-10-05_LGD_BASELINE.md` for the October 5
+LGD baseline. The October 1 Phase 1 handoff remains historical context. Verify
+the repository and external evidence before relying on either handoff.

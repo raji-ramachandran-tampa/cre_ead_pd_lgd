@@ -12,6 +12,16 @@ from typing import Any
 from .duckdb_io import _duckdb
 
 
+def _number_expr_sql(name: str) -> str:
+    """Parse currency/percent strings, preserving accounting-parenthesis signs."""
+    field = '"' + name.replace('"', '""') + '"'
+    return (
+        f"CASE WHEN REGEXP_MATCHES(TRIM({field}), '^\\(.*\\)$') "
+        f"THEN -TRY_CAST(REGEXP_REPLACE(TRIM({field}), '[,$%()]', '', 'g') AS DOUBLE) "
+        f"ELSE TRY_CAST(REGEXP_REPLACE({field}, '[,$%]', '', 'g') AS DOUBLE) END"
+    )
+
+
 def _sql_path(path: Path) -> str:
     return str(path.resolve()).replace("'", "''")
 
@@ -68,9 +78,7 @@ def build_fannie_parquet(
                 f"COALESCE(TRY_STRPTIME(\"{name}\", '%m/%d/%Y')::DATE, "
                 f"TRY_STRPTIME(\"{name}\", '%Y-%m-%d')::DATE)"
             )
-            number_expr = lambda name: (
-                f"TRY_CAST(REGEXP_REPLACE(\"{name}\", '[,$%]', '', 'g') AS DOUBLE)"
-            )
+            number_expr = _number_expr_sql
             connection.execute(
                 f"""
                 COPY (

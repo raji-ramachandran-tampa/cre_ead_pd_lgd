@@ -27,7 +27,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 def _test(_: argparse.Namespace) -> int:
     return subprocess.run(
-        [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py", "-v"],
+        [sys.executable, "-m", "pytest", "tests", "-q"],
         cwd=REPOSITORY_ROOT,
         check=False,
     ).returncode
@@ -215,6 +215,24 @@ def _compare_pd(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _reconcile_lgd(arguments: argparse.Namespace) -> int:
+    import json
+
+    from .models.lgd_reconciliation import reconcile_lgd
+
+    root = fannie_data_root()
+    report = reconcile_lgd(
+        root
+        / "processed"
+        / arguments.release
+        / arguments.dataset_version
+        / "fannie_monthly.parquet",
+        root / "artifacts" / arguments.release / arguments.artifact_version,
+    )
+    print(json.dumps(report, indent=2))
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     """Create the command parser."""
     result = argparse.ArgumentParser(prog="cre-el")
@@ -329,6 +347,11 @@ def parser() -> argparse.ArgumentParser:
     comparison.add_argument("--release", required=True)
     comparison.add_argument("--comparison-version", default="pd-comparison-v0.1.0")
     comparison.set_defaults(handler=_compare_pd)
+    lgd = commands.add_parser("reconcile-fannie-lgd", help="audit source-reported LGD outcomes")
+    lgd.add_argument("--release", required=True)
+    lgd.add_argument("--dataset-version", default="v0.3.0")
+    lgd.add_argument("--artifact-version", default="lgd-reconciliation-v0.1.0")
+    lgd.set_defaults(handler=_reconcile_lgd)
     return result
 
 

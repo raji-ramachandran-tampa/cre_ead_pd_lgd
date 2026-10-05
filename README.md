@@ -48,7 +48,7 @@ conversation:
 
 > Open the `cre_ead_pd_lgd` repository and read `AGENTS.md`,
 > `docs/prompts/CRE_PROJECT_META_PROMPT.md`, and
-> `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-01_PHASE_1.md`. Follow the
+> `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-05_LGD_BASELINE.md`. Follow the
 > fresh-session protocol in the Phase 1 restart prompt. Begin with a read-only
 > audit and report any inconsistency before continuing development.
 
@@ -56,6 +56,15 @@ The restart prompt is a versioned handoff, not authoritative evidence. Verify
 its status and results against the current repository, external manifests, and
 generated artifacts before relying on them. Raw data and credentials remain
 outside Git.
+
+## LGD Development Restart Point (2026-10-05)
+
+Read `docs/model_development/lgd_development_2026-10-05.md` after the Phase 1 handoff.
+LGD reconciliation is implemented and executed on the external 2026Q1 v0.3.0 dataset.
+A two-part research fitting pipeline is implemented and tested on synthetic data.
+Real-data fitting is pending human direction on the proposed Fannie Mae net-loss-ratio
+target, which differs from discounted economic workout LGD. No severity model has
+been fitted or selected in this increment.
 
 ## Developer setup
 
@@ -85,7 +94,7 @@ environment. Pandoc remains an optional external dependency used only when the
 Python `cre-el build-doc` command is asked to publish Markdown as DOCX.
 - `docs/prompts/CRE_PROJECT_META_PROMPT.md` — durable lifecycle instructions for
   future design, coding, validation, monitoring, and documentation work.
-- `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-01_PHASE_1.md` — dated Phase
+- `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-05_LGD_BASELINE.md` — dated Phase
   1 implementation handoff for restarting the project in a fresh AI session.
 - `docs/prompts/tasks/` — focused templates for model development, validation,
   ongoing performance assessment, and lifecycle documentation.
@@ -94,7 +103,7 @@ Python `cre-el build-doc` command is asked to publish Markdown as DOCX.
 
 ## Status
 
-This repository is in the governance and design stage. It does not yet contain
+This repository is in model development with fitted classical research candidates and a synthetic collateral-recovery baseline. It does not yet contain
 an approved production model, completed independent validation, or production
 monitoring evidence. Documentation should be described as aligned to applicable
 guidance, not as proof of regulatory compliance.
@@ -110,3 +119,12 @@ guidance, not as proof of regulatory compliance.
 4. Perform objective validation and implementation verification.
 5. Establish approved monitoring metrics, thresholds, escalation, and periodic
    performance assessment.
+
+## October 5 LGD research baseline
+
+See `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-05_LGD_BASELINE.md` for
+the current handoff. The baseline preserves signed source net-loss ratios,
+mean/ridge/hurdle comparisons, allocation/outcome audits, and a synthetically
+tested collateral waterfall. No model is selected or production approved.
+Run `cre-el test` for the complete pytest suite, including function-style LGD tests.
+Raw data and generated loan-level results remain outside Git.
