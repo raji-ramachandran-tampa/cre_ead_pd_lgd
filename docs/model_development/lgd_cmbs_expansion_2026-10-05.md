@@ -1,0 +1,19 @@
+# Expanded CMBS discounted proxy pilot — October 5, 2026
+
+Status: two-case calculation pilot, not a modeling dataset. User authorized expansion. Existing Fannie CPI baseline and original external versions preserved. Current immutable CMBS version cmbs-discounted-proxy-v0.2.0 holds case_evidence.json, scenarios.json and report.json. Restricted identifiers/amounts remain outside Git.
+
+One additional resolved MF-classified case was verified using primary reports: payment-default transfer, legal actions and bankruptcy are documented before liquidation. Collateral includes residential and retail spaces; retain the mixed-collateral flag rather than assume homogeneous apartment exposure. Two primary reports provide the before/after observations. A full monthly chain and all actual cash dates have not been reconstructed.
+
+Sources: https://www.sec.gov/Archives/edgar/data/1793744/000188852425018678/ccr19cf3_ex991-202510.htm and https://www.sec.gov/Archives/edgar/data/1793744/000188852426015981/ccr19cf3_ex991-202608.htm . Both were fully retrieved through web research. An existing first candidate remains supported by the earlier pilot record. Raw bytes were not locally downloaded; no raw source checksum is claimed.
+
+The two cases yield 108 scenarios using the existing tested proxy calculator. Common comparison uses transfer-to-distribution duration, full combined deductions at terminal distribution and rates 0/5/10%. Across these two purposively discovered cases, the unweighted ratio range is 42.538–92.965% at zero rate, 56.681–94.278% at 5%, and 66.910–95.302% at 10%. The 5% versus zero-rate change ranges from 1.313 to 14.143 percentage points. These ranges are cross-case descriptive comparisons, not uncertainty intervals or representative portfolio estimates. No preferred discount rate selected.
+
+Each case's gross-proceeds minus deductions identity and initial-loss minus adjustment identity reconcile exactly. The first retains a five-cent balance/loss residual; the second balance/loss identity reconciles exactly. Both have post-liquidation adjustments; nature as cash receipts/outflows remains unverified and neither is assumed a new cash flow. Multiple snapshots of one loan are not multiple independent cases.
+
+Alternative legal origins are sensitivity-only: one uses foreclosure sale, the other foreclosure complaint. They are different milestones and cannot be pooled as a common default definition. Default-time EAD, interim collections, combined expense/advance decomposition and cash timing remain open. Liquidation balance is the denominator proxy. Reported expense/advance totals are deducted once from gross proceeds; no further deduction from net proceeds.
+
+Other leads were screened, not added: JPMBB MF payoffs have imminent-default/servicing evidence but default eligibility is unresolved; RSRT has an aggregate public loss lead without verified cost/date details; Benchmark active MF records did not establish terminal MF eligibility for the inspected liquidation. No case was excluded solely because loss was zero. Eligibility and missing data govern admission.
+
+Assessment: the formula works on a second case, but sensitivity is not consistent in size across cases. Two loans cannot support training, macro driver selection, population performance claims or independent validation. Continue expanding resolved cases with standardized default/EAD and allocation definitions; include documented zero/gain outcomes. Source selection is purposive and has survival/public-report coverage bias. Do not join this population to Fannie without a verified crosswalk.
+
+No reusable code change or refit this increment; calculations reused the already-tested proxy interface (prior full suite 95 passed, five skipped). Four exact accounting identities and residual checks executed. Current research additions remain local/uncommitted.

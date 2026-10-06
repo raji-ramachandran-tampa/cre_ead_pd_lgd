@@ -1,0 +1,11 @@
+# Discounted loss approximation — October 5, 2026
+
+Status: separate assumption-based CMBS sensitivity, not observed economic LGD. User authorized approximation. CPI signed-source baseline unchanged. Module models/lgd_discounted_proxy.py uses the existing uncapped calculator without asserting a complete observed ledger.
+
+External immutable cmbs-discounted-proxy-v0.1.0/report.json contains 54 scenarios for the pilot: two origin proxies (special-servicing transfer and reported foreclosure), illustrative annual effective rates 0/5/10%, deduction allocation shares 0/50/100%, and deduction dates at origin/midpoint/terminal distribution. Beginning scheduled liquidation balance is the denominator proxy, not verified default EAD. Proceeds are gross of combined deductions; deductions are applied once. No post-liquidation adjustment is assumed cash because its nature is unverified. ACT/365.25 fractions are used.
+
+In the single-case sensitivity with transfer as origin and all combined deductions assigned to terminal distribution, mean proxy ratios are 92.965%, 94.278% and 95.302% at 0%, 5% and 10%, respectively. These are assumption-driven case calculations, not fitted model performance or portfolio LGD. The zero-rate result reconciles to beginning balance less terminal net proceeds; the previously documented five-cent accounting residual remains. Ratios differ from the report's original-balance percentage because denominator and adjustment basis differ.
+
+No preferred rate, origin, allocation share or cost timing is selected. Scenario extrema are not statistical intervals or proven economic bounds. Missing interim collections, actual cash dates, cost/advance decomposition and default-time exposure remain unresolved. A different assumption can materially change the estimate. Do not use these ratios as observed labels or pool the case with Fannie outcomes. No 672-loan Fannie approximation was attempted: its aggregate accounting loss has not been reconciled into proceeds/cost inputs.
+
+Tests: 95 passed, five Pandoc checks skipped; one existing pandas warning. New tests check direct PV calculation, zero-rate accounting, allocation rejection and preserved negative values. Lint passes. Current changes are local/uncommitted; no production or EL integration.

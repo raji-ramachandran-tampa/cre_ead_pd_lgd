@@ -1,8 +1,18 @@
-# CRE Project Restart � October 5, 2026 LGD Research Baseline
+# CRE Project Restart � October 5, 2026 LGD Research Baseline
 
 Status: current Phase 1 classical research handoff. Read this after AGENTS.md,
 CRE_PROJECT_META_PROMPT.md and the matching lifecycle task template. This
 supersedes the October 1 handoff for current state, not historical evidence.
+
+## Current baseline decision — October 5, 2026
+
+The user designated the full-population **ridge + CPI** model as the new working research baseline. This decision supersedes earlier "no candidate selected" statements for the working research reference only; no institutional selection, independent validation or production approval is implied. Original no-macro ridge and hurdle artifacts remain preserved comparators.
+
+Current immutable external artifact: `lgd-cpi-baseline-v0.1.0`. It packages model key `0_ridge_cpi` from `lgd-macro-research-v0.1.0`, a selection manifest, source report and selected predictions. No refitting or validation/OOT calibration occurred. Train: 632 through-2018 outcomes. Features: acquisition LTV, underwritten DSCR, log acquisition UPB, property type, loss-sharing type and CPI six-month log change. Ridge alpha remains 10 with training-only preprocessing. Target remains the full signed source net-loss ratio.
+
+MAE percentage points: historical 28.148 (615), validation 35.640 (29), examined OOT 79.161 (11). Historical gain versus original ridge is 0.492 points and concentrated in the early fold; later gain is negligible. CPI uses revised data and an assumed two-month publication lag, so point-in-time performance is unverified. Do not claim discounted economic LGD or automatically feed signed estimates into bounded EL aggregation.
+
+Verification: saved selected model reproduces all 40 later predictions within absolute tolerance 1e-12. Prior full suite: 85 passed, five skipped. This designation changes the reference for subsequent experiments; historical reports retain their original comparison definitions. Current additions remain uncommitted; Git checkpoint/tag is pending. Use original artifacts to revert the working reference if needed.
 
 ## Objective and decision rights
 
@@ -110,3 +120,62 @@ rebuild/version choice and source restrictions require their own controlled task
 
 Do not infer approvals from baseline commit/tag. Preserve unrelated changes,
 inspect git status, test before modifications, and report evidence and open decisions.
+
+## Subsequent macro experiment — October 5, 2026
+
+See docs/model_development/lgd_macro_research_2026-10-05.md and external lgd-macro-research-v0.1.0. CPI six-month log change improves full-population historical ridge MAE from 28.640 to 28.148 percentage points; later improvement is negligible. National CRE YoY price-change proxy gives small lag-sensitive gains on a shorter matched sample. Revised macro snapshots and assumed publication delays make this exploratory, not point-in-time validation. No unemployment fitted, no candidate selected, frozen baseline unchanged. Full suite: 78 passed, five Pandoc checks skipped.
+
+
+## Subsequent loan-history experiment — October 5, 2026
+
+See docs/model_development/lgd_history_research_2026-10-05.md. Current external version lgd-history-research-v0.1.1 supersedes retained diagnostic v0.1.0 continuous-rate-change instability. Full 672-loan pre-disposition update and 659-loan before-first-observed-SDQ proxy are separate populations/uses. Lifecycle ridge historical MAE improves 28.640 to 27.920 but validation/OOT worsen; no consistently better overall candidate. DSCR effects depend on assumed reporting lag: two-year primary, one-year sensitivity; actual annual publication dates remain unknown. No default-definition change or model selection. Baseline predictions reconcile and saved hurdle reload reproduces predictions. Tests: 82 passed, five Pandoc checks skipped; new code lint passes.
+
+## DSCR availability evidence audit — October 5, 2026
+
+See docs/model_development/lgd_dscr_availability_2026-10-05.md and external lgd-dscr-availability-audit-v0.1.0. Raw annual file has only loan/year/DSCR; no row publication dates. Fannie announced public file introduction for late January 2021. Only local raw release 2026Q1 exists. Most history-experiment anchors predate 2021; both annual reference-year lags remain retrospective assumptions, not verified point-in-time availability. Distinguish public disclosure from lender statement receipt. This limitation also applies to PD annual-DSCR candidates. Do not infer availability from fiscal year or select lag from accuracy; obtain dated source releases/receipt records.
+
+Archive follow-up: Data Dynamics requires user sign-in; no additional releases retrieved as of this search. Official FAQ Q17 gives Q1 publication by July 14, so monthly Reporting Period Date also does not establish public availability. Archive existence/download options remain unverified behind authentication; do not claim none exist.
+
+
+Authenticated follow-up: user signed in; MF downloads inspected and current DSCR downloaded. ZIP and CSV hashes exactly match existing 2026Q1 raw source (316,304 rows). No older MF vintage selector or archive was found in the inspected download/message views. Availability gap remains; no model refit or source overwrite.
+
+
+## Rate and spread macro challengers — October 5, 2026
+
+See docs/model_development/lgd_rates_research_2026-10-05.md and external lgd-rates-research-v0.1.0. Added monthly 10-year Treasury level, six-month yield change and corporate Baa/Treasury spread; two-month assumed lag and three-month sensitivity, separate matched CRE-covered scopes. Full historical ridge CPI MAE 28.148 percentage points versus 31.524 for CPI+Treasury/spread. Spread alone 28.537; validation/OOT improvements are small-sample, already-examined comparisons. CRE-covered combined hurdle gains are modest historically but OOT worsens. No candidate selected; frozen baseline unchanged. Revised snapshots and unverified public release timing remain limitations. Baseline/CPI predictions reconcile within 1e-8; saved combined models reload correctly. Tests: 85 passed, five skipped, one existing pandas warning; new code lint passes. New macro/history/rates research changes remain uncommitted.
+
+## Discounted economic LGD feasibility — October 5, 2026
+
+See docs/model_development/lgd_economic_feasibility_2026-10-05.md and external lgd-economic-feasibility-v0.1.0. Actual 62-field raw schema audited; complete dated recovery/cost/income/reimbursement ledger absent from inspected file. Reported net loss mixes accounting components and is not simply discounted. Credit Event Date is not default onset. Twelve synthetic timing/rate calculations executed using existing calculator; 100 EAD/80 recovery at 5% gives 20% immediate versus 27.44% at two years. No empirical economic target or refit. Next: PD-aligned default/EAD mapping, actual cash-flow contract/accounting reconciliation and explicit rate convention. Current CPI baseline remains unchanged.
+
+## Economic ledger contract implementation — October 5, 2026
+
+See docs/model_development/lgd_economic_contract_2026-10-05.md and models/economic_lgd_contract.py. Dated ledger validation and nominal/discounted reconciliation implemented; no assumed receipts or incomplete ledgers admitted. Explicit institution/whole-loan perspective, rate basis, ACT/365.25, annual effective compounding; signed raw results preserved. Completeness/finalization are caller attestations. Tests 93 passed, five skipped; existing pandas warning. No empirical economic labels possible without missing cash records, no CPI baseline change or EL integration. Local additions uncommitted.
+
+## Public workout source discovery — October 5, 2026
+
+See docs/model_development/lgd_public_workout_sources_2026-10-05.md. Public SEC CMBS trustee exhibit inspected: populated historical loan-level proceeds/expense/net-proceeds table and dated distributions; strongest CRE pilot lead, not proof of complete transaction cash ledger or eligible default sample. Freddie MSIA complimentary monthly investor reports require login; MLPD is partial quarterly outcomes, not full ledger. Single-family datasets have richer components but different population and incomplete payment dates. FDIC paper uses administrative data; no public microdata download found in this search. Recommend separate resolved-multifamily CMBS report-chain coverage pilot; do not pool or match to Fannie without verified crosswalk. No economic model refit or baseline change.
+
+## CMBS initial pilot — October 5, 2026
+
+See docs/model_development/lgd_cmbs_pilot_2026-10-05.md and separate external cmbs-workout-pilot-v0.1.0. One resolved MF foreclosure candidate identified; zero complete economic ledgers. Two nominal identities reconcile exactly; beginning-balance versus loss residual five cents remains unresolved. Combined deductions include P&I advances/unpaid fees; post-liquidation adjustment not proven cash receipt. Raw download HTTP403, no raw report saved; primary web full page and indexed excerpts distinguished. Monthly chain, default/EAD origin, cash dates, decomposition and finalization remain gaps. No empirical economic labels/refit or CPI/Fannie changes. Keep case IDs/amounts outside Git.
+
+## CMBS economic-loss literature — October 5, 2026
+
+See docs/model_development/lgd_economic_literature_2026-10-05.md. Wong 2018 and D Lima/Lopez 2021 use commercial CMBS datasets and nominal liquidation loss ratios; not verified complete discounted ledgers from our SEC/Fannie files. Fees/servicing incentives and advances materially affect loss allocation. Academy 2023 shows NRA recoveries can increase principal paydowns despite expense categorization. FDIC 2015 (different administrative data) explicitly estimates terminal principal recoveries and discounts with assumed timing when full cash histories missing; supports a labeled proxy sensitivity branch, not observed economic labels. No universal rate/cost exclusion or baseline change justified.
+
+## Authorized discounted approximation — October 5, 2026
+
+See docs/model_development/lgd_discounted_proxy_2026-10-05.md, models/lgd_discounted_proxy.py and separate external cmbs-discounted-proxy-v0.1.0. Executed 54 single-case origin/rate/deduction-allocation/timing sensitivities. Not observed economic labels: liquidation balance denominator, distribution receipt date and origin are proxies, combined deductions unseparated. Subsequent adjustment not assumed cash. No chosen rate or confidence bounds, no Fannie refit. Tests 95 passed, five skipped; lint passes. Current CPI baseline unchanged; additions uncommitted.
+
+## CMBS proxy pilot expansion — October 5, 2026
+
+See docs/model_development/lgd_cmbs_expansion_2026-10-05.md and external cmbs-discounted-proxy-v0.2.0. Two resolved MF-classified cases, 108 sensitivities; zero complete observed ledgers. Additional case has documented payment-default and bankruptcy, mixed residential/retail collateral flag. Common transfer-origin/terminal-full-deductions comparison: 5% rate increment varies 1.313–14.143 percentage points versus zero rate. Two cases insufficient to fit or claim stability. Alternative legal origins are different milestones and not poolable. Both post-liquidation adjustments remain unverified cash; first five-cent residual retained, second reconciles. CPI/Fannie unchanged, no population pooling. Prior calculator tests 95 passed/five skipped; new arithmetic checked. Local additions uncommitted.
+
+## Fannie accounting-based discounted approximation — October 5, 2026
+
+User chose Fannie approximation. See docs/model_development/lgd_fannie_accounting_bridge_2026-10-05.md and external lgd-fannie-accounting-bridge-v0.1.0. 660/672 supported first-SDQ-to-disposition durations (620 train/29 valid/11 OOT), 12 missing training durations not imputed; six sensitivities each. Formula 1-(1-L)/(1+r)^(T*f), accounting net recovery equivalent, not observed receipts or verified EAD. Costs/interest/benefits embedded; no extra deductions. Above-one negative net equivalents preserved and positive rate can lower their proxy. 5% terminal mean shifts +5.560/+13.111/+4.873 pp on matched train/valid/OOT; not prediction performance. Tests 98 passed, five skipped. No economic model fitted, no preferred rate, baseline CPI unchanged. Next fit must be matched population and distinguish changed target from predictive improvement; no realized duration feature leakage. Local additions uncommitted.
+
+## Fitted Fannie approximation model — October 5, 2026
+
+User authorized fit. See docs/model_development/lgd_fannie_proxy_model_2026-10-05.md, models/lgd_proxy_model.py and external lgd-fannie-proxy-model-v0.1.0. Primary 5% terminal assumption stated before fit; six sensitivity targets. Final ridge+CPI trained620, historical606, validation29, OOT11. Primary MAE25.611/28.833/75.832 pp; no-CPI26.213/28.866/75.861; mean benchmark better OOT74.003. Same-proxy source-trained CPI comparator26.619/28.081/76.365: proxy refit not consistently better. OOT mean prediction41.733% vs actual proxy0.547%. No realized duration predictor, original pre-disposition features possibly during workout. Different targets: do not choose rate on errors or claim improvement over original target. Saved reload40 predictions verified; tests99 passed/five skipped; lint passes. Original CPI baseline unchanged; no observed economic-LGD/EL claim. Local changes uncommitted.

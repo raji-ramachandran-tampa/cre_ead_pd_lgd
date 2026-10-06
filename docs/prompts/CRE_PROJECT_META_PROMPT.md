@@ -306,6 +306,27 @@ outside Git; repository documents contain aggregate research evidence only.
 Use pytest for the complete mixed unittest/function-style suite. Never claim
 complete tests from a runner that misses function-style tests.
 
+## Current research checkpoint and EAD transition — October 6, 2026
+
+LGD research development is closed for this phase at the user's direction;
+independent validation, institutional approval and production release remain
+open. The signed-loss ridge + CPI remains the working research baseline.
+The fitted discounted accounting approximation is a separate experimental
+outcome, not verified economic workout LGD or a replacement baseline.
+
+Read `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-06_EAD_START.md` first
+for current state, then its linked LGD evidence. Older restart notes are dated
+history and may describe work as uncommitted before this checkpoint.
+
+The next component is EAD research development. Inspect the existing contractual
+EAD calculator and source fields before estimating a new model. Define prediction
+date, horizon, default onset and exposure components; distinguish projected
+funded balance from source DefaultAmount and disposition balance. Establish a
+contractual amortization benchmark and audit available balances, interest-only
+periods, balloons, prepayment, modification and commitments. Do not assume
+unobserved draws, advances or accrued interest are zero. Reconcile the EAD basis
+with each LGD denominator and PD timing before expected-loss integration.
+
 ## Task interface
 
 ```text
