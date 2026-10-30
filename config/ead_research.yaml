@@ -1,0 +1,18 @@
+status: working_research_method_not_institutionally_approved
+primary_method: deterministic_scheduled_principal_projection
+statistical_role: diagnostic_challenger_only
+horizons_months: [3, 12]
+default_proxy: first_observed_60_plus_delinquency
+outcome: scheduled_stated_principal
+schedule_convention: post_original_interest_only_clock_provisional
+alternative_schedule: elapsed_calendar_age
+io_principal_rule: hold_if_known_fixed_unmodified_pre_maturity
+unverified_schedule_rule: flagged_balance_hold_proxy
+unpaid_maturity_rule: retain_flagged_balance_hold_proxy
+include_accrued_interest: false
+include_advances: false
+include_future_draws: false
+missing_components_are_zero: false
+expected_loss_integration: disabled_pending_date_and_denominator_reconciliation
+independent_validation: open
+git_baseline_checkpoint: pending

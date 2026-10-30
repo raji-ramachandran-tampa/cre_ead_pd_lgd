@@ -7,6 +7,19 @@ Read AGENTS.md, CRE_PROJECT_META_PROMPT.md and tasks/model_development.md.
 This supersedes the October 5 restart for current state; retain that document
 and linked reports as historical evidence.
 
+## Current EAD method decision — October 6, 2026
+
+User agreed deterministic contractual amortization is the primary research method;
+guarded ridge is diagnostic challenger only. This supersedes older no-primary
+statements at method level, not institutional model approval. See
+model_development/ead_primary_method_2026-10-06.md and config/ead_research.yaml.
+External ead-schedule-reference-v0.1.0 freezes the prior routed predictions with
+basis/verification flags; IO-clock reconstruction remains provisional, maturity
+and unknown schedules retain flagged holds, no new performance claim. No verified
+contract/actual broad EAD, PD/LGD integration or independent validation. Git
+checkpoint pending. Next: schedule-convention verification and actual/scheduled
+principal, accrual, participation and default-date reconciliation.
+
 ## LGD decisions and evidence
 
 LGD research development is complete for this phase, with limitations retained.
@@ -85,3 +98,111 @@ Open decisions: default onset, prediction horizon, funded-principal versus
 broader exposure, accrual/advance coverage, loan/whole-loan perspective and
 prospective data availability. Preserve LGD outcome definitions while auditing;
 do not silently replace denominators or feed signed outputs into bounded EL.
+
+## EAD field audit executed — October 6, 2026
+
+See docs/model_development/ead_source_audit_2026-10-06.md and external
+ead-source-audit-v0.1.0. Raw field audit and flat scheduled-balance benchmark
+completed: 2,120 first observed SDQ loans; 660/672 LGD cases match onset, 597 of
+660 DefaultAmount/scheduled-UPB ratios within 1%. Three-month benchmark aggregate
+absolute error/outcome about 0.265–0.348%, twelve-month 1.059–1.363%; not actual
+funded economic EAD accuracy. Current UPB is scheduled/stated principal; Default
+Amount includes accrued interest; Delinquency UPB reflects participation. Do not
+replace LGD denominator or change PD event timing silently. Four selected-column
+identical duplicate rows removed, no conflicting histories. Next: reconstruct
+assumption-based amortization/I/O schedule, validate against clean performing
+history, then compare on matched onset cases. No fitted EAD model or independent
+validation yet. Additions local and uncommitted; prior Git checkpoint preserved.
+
+## EAD model candidates fitted — October 6, 2026
+
+See docs/model_development/ead_model_research_2026-10-06.md. External final artifact
+ead-research-v0.1.2 uses ead-source-audit-v0.2.0. Two schedule conventions and
+fixed alpha10 ridge ratio model; train565 three-month/572 twelve-month. Matched
+supported fixed/unmodified/pre-maturity population only. Ridge best2019–22,
+IO-clock sensitivity best2023onward. No baseline selected, no verified economic
+EAD or EL integration. v0.1.0 annuity/log-model diagnostic superseded; v0.1.1
+reload-failed partial artifact unusable. v0.1.2 independent annuity and reload
+checks pass. Next: schedule convention evidence, excluded-case coverage,
+chronological refit backtests, segment/tail and LGD denominator reconciliation.
+Local changes remain uncommitted; prior Git checkpoint preserved.
+
+## EAD diagnostics completed — October 6, 2026
+
+See docs/model_development/ead_diagnostics_2026-10-06.md and external
+ead-diagnostics-v0.1.0. Historical expanding refits evaluated754 three-month/
+766 twelve-month cases; aggregate error IO-clock0.0967%/0.4727%,ridge0.0971%/
+0.3459%. Recent within-IO76 twelve-month cases have unchanged principal; ridge
+drifts. Recent43 maturity-crossing cases remain positive exposures; no assumed
+balloon payoff. ARM-specific Fannie documentation confirms convention variation,
+not fixed-rate clock validation. Recommend transparent schedule candidate and
+ridge challenger, no baseline selection. Next: contract-convention evidence,
+structural IO guard within explicit funded scope, maturity and excluded-case
+coverage, denominator/date integration. Changes local/uncommitted.
+
+## EAD guarded and coverage candidates — October 6, 2026
+
+See docs/model_development/ead_coverage_candidate_2026-10-06.md. Final external
+ead-coverage-candidate-v0.1.1; v0.1.0 broader IO route labels superseded.
+Explicit IOhold for fixed/unmodified/pre-maturity loans, supported postIO clock
+otherwise, flagged hold fallback for maturity/unknown schedules. Coverage1,915/
+1,952 initialeligible3/12month cases is proxy coverage, not verified contract.
+Recentfull error0.1109%/0.5462% versus hold0.2647%/1.0594%; matched guardedridge
+0.0516%/0.2445%. No refit/denominator change/independent validation/baseline
+selection. Next: route backtests, participation/accrual/default-date reconciliation.
+Local additions remain uncommitted; Git checkpoint remains LGD-to-EAD start.
+
+## Schedule and denominator evidence — October 6, 2026
+
+See docs/model_development/ead_schedule_reconciliation_2026-10-06.md and external
+ead-schedule-reconciliation-v0.1.0. One performing window per304 loans: postIO
+clock lower error on all64 convention-different loans; partialIO79 error0.1928%
+versus calendar0.5776%. Provisional support, not contract validation.672 signed
+source identities verified; atfirstSDQ660 scheduled/633 participation positive.
+DefaultAmount equals participation withincent418, but negative residual187;
+scheduled negative residual158. Do not infer accrual by subtraction or floor.
+Median SDQ/disposition gap1.7495years; contractual default date unresolved.
+SourceLGD*principal rescales loss identity; maximumcase departure66.48%.
+Principal-only research method retained, no automatic EL integration. Next:
+date-aligned participation outcome and denominator exception investigation,
+separate broader exposure approximation only if supported. Local uncommitted.
+
+## EAD participation/exception review — October 6, 2026
+
+See docs/model_development/ead_participation_review_2026-10-06.md; final external
+ead-participation-review-v0.1.2. Same-month participation scoring recent3months
+0.1601%(418),12months0.5892%(454), changed target not principal improvement.
+Ten source-denominator scale departures>10%; five repeated observedSDQ spells,
+three smaller departure with lastspell principal. Hindsight diagnostic, nottrue
+default identification. No missing-history/maturitychange/balanceincrease inthese
+pre-disposition histories. No case removal or accrual inference. v0.1.0 initial
+and v0.1.1 unrestrictedhistory retained diagnostic; v0.1.2 current. Next: explicit
+observed episode table, preserve onset/resolution dates and participation basis;
+do not select nearest balance as true default or integrate EL silently. Local
+uncommitted work; principalmethod and LGD checkpoint unchanged.
+
+## Observed episode table executed — October 6, 2026
+
+See docs/model_development/ead_observed_episodes_2026-10-06.md. External
+immutable ead-observed-episodes-v0.1.0:2,416 spells/2,120 loans,238 multiple
+spell loans,660 frozenLGD overlap/66 multiple observed spells. Exact raw
+participation joined;750 loans with source resolution metadata. Gap boundary
+flags and return-to-nonSDQ explicitly notcure. Lastpre-resolution link is
+hindsight diagnostic, not true default selection or prospective predictor.
+Tests113passed/five skips,lintpasses. Next: first/last spell exposure comparison
+on66 linked multiple-spellLGD loans and explicit commonPD/EAD default proposal;
+no automatic denominator or EL change. Local uncommitted additions.
+
+## Common timing proposal documented — October 6, 2026
+
+See docs/model_development/ead_pd_timing_proposal_2026-10-06.md; external
+ead-episode-alignment-v0.1.0. Repeated66 LGD cases:last principal closer49/farther12;
+paired participation63 lastcloser48 and matches source withincent32. Hindsight
+sensitivity, not true default or accrual. FirstSDQ repartition oforiginal672:
+634through2018/23in2019–22/3in2023+/12unmatched;8oforiginal11OOT originatedbefore2023.
+No old metrics relabeled/refit. Proposed common first-observedSDQ PD/EAD event
+contract, leftcensor/gaps and payoffexits explicit, repeatedspells separate;
+loss finalization/availability and episode LGD attribution unresolved. Next:
+SEPARATE versioned firstSDQ PD research experiment/event contract across all2120
+onsets; preserve dispositionPD and originalLGD. AutomaticEL disabled. Proposal
+not adopted/institutionallyapproved. All EAD additions local/uncommitted.
