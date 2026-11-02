@@ -314,7 +314,7 @@ open. The signed-loss ridge + CPI remains the working research baseline.
 The fitted discounted accounting approximation is a separate experimental
 outcome, not verified economic workout LGD or a replacement baseline.
 
-Read `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-10-30_EAD_BRANCH.md` first
+Read `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-11-02_EAD_ADVANCED.md` first
 for current state, then its linked LGD evidence. Older restart notes are dated
 history and may describe work as uncommitted before this checkpoint.
 
@@ -332,8 +332,9 @@ with each LGD denominator and PD timing before expected-loss integration.
 Dedicated branch: ead-model-development. Deterministic contractual principal
 projection is primary; reconstructed IO conventions and fallback holds remain
 explicit assumptions. Guarded ridge is diagnostic only. Advanced residual and
-quantile models are research candidates, not fitted evidence or replacements
-without measured benefit. Distinguish scheduled principal, participation exposure
+quantile models are fitted research challengers as of November 2, 2026; they do
+not improve recent principal results over amortization and are not selected
+replacements. Report non-IO interval coverage and temporal calibration limits. Distinguish scheduled principal, participation exposure
 and full economic EAD. Missing commitments, draws, accrued-interest and advance
 breakdowns must not be fabricated. Keep PD event changes and LGD denominator
 changes separate; no automatic EL integration. See the latest restart handoff

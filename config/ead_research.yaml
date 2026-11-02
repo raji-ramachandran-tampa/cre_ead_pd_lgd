@@ -16,3 +16,15 @@ missing_components_are_zero: false
 expected_loss_integration: disabled_pending_date_and_denominator_reconciliation
 independent_validation: open
 git_baseline_checkpoint: pending
+
+advanced_challenger:
+  status: fitted_not_selected
+  method: shallow_histogram_boosting_schedule_residual
+  target: scheduled_stated_principal_at_first_observed_sdq
+  artifact: ead-advanced-residual-v0.1.1
+  mean_train_through: 2018
+  quantile_train_through: 2014
+  calibration_years: [2015, 2018]
+  interval_nominal_coverage: 0.90
+  coverage_guaranteed: false
+  replaces_amortization: false
