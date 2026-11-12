@@ -314,7 +314,7 @@ open. The signed-loss ridge + CPI remains the working research baseline.
 The fitted discounted accounting approximation is a separate experimental
 outcome, not verified economic workout LGD or a replacement baseline.
 
-Read `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-11-02_EAD_ADVANCED.md` first
+Read `docs/prompts/CRE_PROJECT_RESTART_PROMPT_2026-11-12_EAD_PAYMENT_HISTORY.md` first
 for current state, then its linked LGD evidence. Older restart notes are dated
 history and may describe work as uncommitted before this checkpoint.
 

@@ -28,3 +28,12 @@ advanced_challenger:
   interval_nominal_coverage: 0.90
   coverage_guaranteed: false
   replaces_amortization: false
+
+payment_history_challenger:
+  status: evaluated_limited_coverage_not_selected
+  artifact: ead-payment-history-v0.1.1
+  lookback_months: 3
+  stability_dollars: 1.0
+  stability_payment_fraction: 0.001
+  outcome: scheduled_stated_principal_at_first_observed_sdq
+  replaces_amortization: false
