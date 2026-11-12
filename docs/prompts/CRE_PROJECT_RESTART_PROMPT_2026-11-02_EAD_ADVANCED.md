@@ -33,3 +33,16 @@ tests/configuration/aggregate docs only. Check Git log for updated checkpoint.
 
 Verification completed November2:117 tests passed,five Pandoc-dependent skips;
 one pre-existing pandas deprecation warning. New code/test lint passes.
+
+## Manuscript workspace started — November 2, 2026
+
+User requested a separate paper-writing folder and eventual arXiv preparation.
+See paper/README.md and paper/manuscript.md. Initial Markdown draft covers the
+PD/LGD/EAD framework, signed losses, exposure benchmarks and timing findings;
+PD quantitative audit,related work and final authorship remain open. Evidence
+and source registers map claims to development records. No causal AI productivity
+claim or integrated economicEL claim. No arXiv submission or LaTeX package created.
+Continue writing in this workspace; eventual author review/submission explicit.
+At initial drafting these paper additions were local/uncommitted. Superseded by
+November12 publication-workspace checkpoint: paper/ draft and table exporter
+included on GitHub EAD branch; no arXiv submission.

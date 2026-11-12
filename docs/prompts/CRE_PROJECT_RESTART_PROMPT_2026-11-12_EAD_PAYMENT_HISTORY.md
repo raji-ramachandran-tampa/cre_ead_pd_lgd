@@ -26,3 +26,14 @@ evidence/handoff. Check Git log for latest pushed branch commit.
 
 Verification November12:124 tests passed,five Pandoc-dependent skips;one existing
 pandas deprecation warning. New module/test lint passes.
+
+## Paper and source upload — November 12, 2026
+
+User requested paper update and code upload. paper/manuscript.md draftv0.2 now
+includes payment-history results/coverage and nonlinear correction drift. Paper
+workspace and scripts/export_paper_ead_tables.py included on GitHub EAD branch;
+model codefcbf2b5 already published. Exporter reads frozen aggregate reports only,
+checks paired samples and regenerates both EAD tables with input/code hashes.
+Paper remains work in progress:PD evidence,literature/authorship and final figures
+open. No arXiv submission or loan-level Git data. Original modeling checkpoint
+excluded paper; this later publication-workspace checkpoint supersedes that status.

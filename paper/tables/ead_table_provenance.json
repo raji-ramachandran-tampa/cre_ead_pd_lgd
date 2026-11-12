@@ -1,0 +1,10 @@
+{
+  "status": "aggregate_table_export_not_independent_model_validation",
+  "units": "100 * sum_absolute_error_dollars / sum_observed_scheduled_principal",
+  "inputs": {
+    "ead-advanced-residual-v0.1.1\\report.json": "bfeb8d890b63f2659958e746cb391c0d84a74871fd0ec673eb53b0511785f46b",
+    "ead-payment-history-v0.1.1\\report.json": "917dcd8a1aa765ddc3d19cf554e0fbac8cf67e993873dcf25c5cc28c7f5b6adb"
+  },
+  "export_code_sha256": "f5927c668ae8e722b1956433588fcd0fcb016a358092274395cdb47c48dbca79",
+  "populations": "Advanced supported cases; payment table full initially eligible cases; not interchangeable"
+}
