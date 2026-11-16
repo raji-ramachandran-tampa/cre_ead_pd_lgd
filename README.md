@@ -134,5 +134,6 @@ Raw data and generated loan-level results remain outside Git.
 On `retail-ead-development`,start with the
 [retail EAD project](docs/model_development/retail_ead/README.md).
 This is a separate account-month feasibility study,not a replacement for the
-Fannie multifamily models. Original Home Credit files have not yet been obtained;
-no empirical retail model or performance results are claimed.
+Fannie multifamily models. Original Home Credit files have been received and schema-audited;
+delinquency target/materiality review remains open. Exploratory raw-delinquency proxy benchmarks have been tested;
+no validated or selected material-default EAD model is claimed.

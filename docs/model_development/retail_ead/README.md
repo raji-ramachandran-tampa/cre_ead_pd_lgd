@@ -19,8 +19,9 @@ claims added to the manuscript. Independent validation/approval not established.
   overlimit anchors have undefinedCCF but retain the principalEAD case.
 
 These are implementation/synthetic checks,not an audit of actual Home Credit data.
-User confirmed files are NOT downloaded. No real-data row counts,default rates,
-model metrics or data/license acceptance are claimed.
+Initial starter used synthetic data only. User supplied both files on November16;
+see data_receipt_audit_2026-11-16.md for the executed audit. No model fit or
+source-license acceptance is claimed.
 
 ## Obtain original source files
 
@@ -86,7 +87,7 @@ Do not silently clip,drop negatives or censor values above1.
 6. Maintain separate publication evidence;do not pool retail and CRE observations
    or present consumer results as validating CRE revolving lines.
 
-Next required input: original files plus dictionary/access-term review. Starter
+Next required work: delinquency materiality/target review and access-term review. Starter
 code does not establish that Home Credit ultimately supports a publishable
 realized-EAD target. If it does not,we will document that finding and consider
 controlled-access corporate data rather than invent labels.
@@ -95,3 +96,20 @@ Verification November16:129 tests passed,five Pandoc-dependent checks skipped,
 one existing pandas deprecation warning;retail module/test lint passes. Real-data
 retail audit remains pending source files. External data folder prepared at
 C:/Users/Rajir/data/retail_ead/raw/home-credit-default-risk-2018;no data downloaded.
+
+## Current data status
+
+Both source files received/extracted;3,840,312 rows/104,307 accounts. Dictionary
+core fields reviewed. Raw90DPD1806 accounts versus tolerance90DPD39 is a major
+target-feasibility issue. No retail model fitted. Full findings:
+[data receipt audit](data_receipt_audit_2026-11-16.md). Earlier no-data notes
+describe initial scaffold status and are superseded here.
+
+## First real-data proxy test completed
+
+See [November16 test](real_data_test_2026-11-16.md). Raw90DPD six/twelve-month
+benchmarks fitted on1053/1112training groups and260/294heldout groups. Regression
+fails to beat simplemean exposure/limit. Tolerance-adjusted90DPD only12/15eligible
+pairs;no model fit there. Current dataset has not established a defensible material-
+defaultEAD target;advanced model development not justified yet. No primary retail
+model selected. Earlier no-fit statements describe starter status,superseded here.

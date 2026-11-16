@@ -1,8 +1,8 @@
-status: feasibility_and_synthetic_tests_only
+status: real_data_proxy_test_complete_material_default_feasibility_unresolved
 branch: retail-ead-development
 population: retail_revolving_credit_separate_from_CRE
 candidate_source: home_credit_default_risk_2018
-source_files_downloaded: false
+source_files_downloaded: true
 source_terms_and_dictionary_reviewed: false
 data_root_environment_variable: HOME_CREDIT_ROOT
 observation_grain: account_month
@@ -23,6 +23,24 @@ ccf:
   retain_negative_and_above_one: true
   fully_drawn_or_overlimit: undefined_CCF_retain_EAD_case
 currency_and_balance_basis: pending_official_dictionary_review
-model_fitted: false
+model_fitted: true
+model_scope: exploratory_raw_90dpd_proxy_only_not_validated_default
 CRE_model_integration: false
 raw_or_loan_level_data_in_git: prohibited
+
+source_audit:
+  artifact: retail-ead-audit-v0.1.0
+  dictionary_core_fields_reviewed: true
+  dictionary_encoding: cp1252
+  access_terms_verified: false
+  raw_90dpd_accounts: 1806
+  tolerance_90dpd_accounts: 39
+  materiality_and_default_definition_review: pending
+
+proxy_test:
+  artifact: retail-ead-proxy-test-v0.1.0
+  fitted_horizons_months: [6, 12]
+  tolerance_adjusted_model: skipped_insufficient_sample
+  primary_model_selected: false
+  chronological_OOT_available: false
+  split: stable_application_group_hash
