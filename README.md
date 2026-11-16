@@ -128,3 +128,11 @@ mean/ridge/hurdle comparisons, allocation/outcome audits, and a synthetically
 tested collateral waterfall. No model is selected or production approved.
 Run `cre-el test` for the complete pytest suite, including function-style LGD tests.
 Raw data and generated loan-level results remain outside Git.
+
+## Retail revolving EAD extension
+
+On `retail-ead-development`,start with the
+[retail EAD project](docs/model_development/retail_ead/README.md).
+This is a separate account-month feasibility study,not a replacement for the
+Fannie multifamily models. Original Home Credit files have not yet been obtained;
+no empirical retail model or performance results are claimed.

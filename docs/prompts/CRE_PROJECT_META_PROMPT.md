@@ -340,6 +340,17 @@ breakdowns must not be fabricated. Keep PD event changes and LGD denominator
 changes separate; no automatic EL integration. See the latest restart handoff
 and ead_advanced_feasibility_2026-10-30.md for current scope.
 
+## Retail revolving-credit extension — November 16, 2026
+
+On retail-ead-development only,read
+CRE_PROJECT_RESTART_PROMPT_2026-11-16_RETAIL_EAD.md for current work. This is a
+separate retail account-month project;default loan-property-quarter and CRE
+population assumptions do not apply to it. Preserve Fannie research on its own
+branch. Home Credit source/target feasibility is pending actual data and dictionary
+review;no fitted retail model. Application PD labels are not historical card EAD
+labels. Preserve negative/above-one CCF and undefined fullydrawn cases explicitly.
+Do not invent calendar dates from relative months or pool retail evidence withCRE.
+
 ## Task interface
 
 ```text
