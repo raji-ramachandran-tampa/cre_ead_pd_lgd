@@ -1,5 +1,9 @@
 # Retail revolving EAD project
 
+Current setting: configurable **60-day** delinquency proxy. See
+[configuration and results](configurable_60dpd_2026-11-16.md). Earlier90day
+experiments below remain historical evidence;raw/tolerance materiality gap persists.
+
 Started November16,2026 at user request. Branch `retail-ead-development`,forked
 from EAD/paper checkpoint064983f. This is a separate consumer revolving-credit
 research extension. Existing FannieCRE results and paper are inherited history,

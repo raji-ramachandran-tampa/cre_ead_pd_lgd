@@ -9,6 +9,7 @@ import duckdb
 import joblib
 import numpy as np
 import pandas as pd
+import yaml
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import PoissonRegressor
 from sklearn.pipeline import make_pipeline
@@ -27,12 +28,36 @@ FEATURES = [
 ]
 
 
+def validate_settings(dpd_threshold, horizons):
+    if isinstance(dpd_threshold, bool) or not isinstance(dpd_threshold, int) or dpd_threshold <= 0:
+        raise ValueError("Delinquency threshold must be a positive integer")
+    if (
+        not horizons
+        or len(set(horizons)) != len(horizons)
+        or any(isinstance(h, bool) or not isinstance(h, int) or h <= 0 for h in horizons)
+    ):
+        raise ValueError("Horizons must be distinct positive integers")
+    return dpd_threshold, tuple(horizons)
+
+
+def load_settings(path, threshold_override=None):
+    config = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    threshold = (
+        config["default_proxy"]["threshold_days"]
+        if threshold_override is None
+        else threshold_override
+    )
+    return validate_settings(threshold, config["horizons_months"])
+
+
 def held_out(group):
     """Stable split by application link, independent of outcome/horizon/DPD choice."""
     return int(hashlib.sha256(str(group).encode()).hexdigest()[:16], 16) % 5 == 0
 
 
 def add_features(pairs, history):
+    if pairs.empty:
+        return pd.DataFrame(columns=list(pairs.columns) + ["application_link", *FEATURES, "split"])
     groups = {k: g.sort_values("month_index") for k, g in history.groupby("account_id")}
     result = []
     for r in pairs.itertuples():
@@ -103,9 +128,11 @@ def metrics(actual, predicted):
     }
 
 
-def run(root, output):
+def run(root, output, dpd_threshold=60, horizons=(3, 6, 12), config_path=None):
+    dpd_threshold, horizons = validate_settings(dpd_threshold, horizons)
     if output.exists():
         raise FileExistsError(output)
+    config_bytes = Path(config_path).read_bytes() if config_path is not None else None
     source = root / "raw/home-credit-default-risk-2018/credit_card_balance.csv"
     dictionary = root / "raw/home-credit-default-risk-2018/HomeCredit_columns_description.csv"
     con = duckdb.connect()
@@ -117,15 +144,23 @@ def run(root, output):
         [str(source)],
     )
     history = con.execute(
-        "SELECT * FROM monthly WHERE account_id IN (SELECT DISTINCT account_id FROM monthly WHERE dpd>=90 OR dpd_tolerance>=90)"
+        "SELECT * FROM monthly WHERE account_id IN (SELECT DISTINCT account_id FROM monthly WHERE dpd>=? OR dpd_tolerance>=?)",
+        [dpd_threshold, dpd_threshold],
     ).fetchdf()
     con.close()
     reports = []
     all_pairs = []
     all_predictions = []
     models = {}
-    for name, column in [("raw90", "dpd"), ("tolerance90", "dpd_tolerance")]:
-        p = proxy_pairs(history.rename(columns={column: "days_past_due"}), horizons=(3, 6, 12))
+    for name, column in [
+        (f"raw{dpd_threshold}", "dpd"),
+        (f"tolerance{dpd_threshold}", "dpd_tolerance"),
+    ]:
+        p = proxy_pairs(
+            history.rename(columns={column: "days_past_due"}),
+            horizons=horizons,
+            dpd_threshold=dpd_threshold,
+        )
         p["definition"] = name
         all_pairs.append(p)
         eligible = p[p.eligibility.eq("eligible_delinquency_proxy")]
@@ -217,7 +252,19 @@ def run(root, output):
         "dictionary_sha256": sha256(dictionary),
         "code_sha256": sha256(Path(__file__)),
         "split": "SHA256 application link modulo5==0 heldout; same mapping across definitions/horizons; not calendar OOT",
-        "target": "AMT_BALANCE at first observed90DPD raw/tolerance proxy; units and interest basis unverified",
+        "target": f"AMT_BALANCE at first observed{dpd_threshold}DPD raw/tolerance proxy; units and interest basis unverified",
+        "delinquency_threshold_days": dpd_threshold,
+        "horizons_months": list(horizons),
+        "config_sha256": hashlib.sha256(config_bytes).hexdigest()
+        if config_bytes is not None
+        else None,
+        "configuration_snapshot": yaml.safe_load(config_bytes)
+        if config_bytes is not None
+        else None,
+        "effective_settings": {
+            "delinquency_threshold_days": dpd_threshold,
+            "horizons_months": list(horizons),
+        },
         "features": FEATURES,
         "direct_method": "PoissonRegressor alpha1 loglink on EAD/anchorlimit; mean in original source units",
         "minimum_training_groups": 60,
@@ -236,6 +283,8 @@ def run(root, output):
         ],
     }
     output.mkdir(parents=True)
+    if config_bytes is not None:
+        (output / "config_used.yaml").write_bytes(config_bytes)
     pairs.to_parquet(output / "all_proxy_pairs.parquet", index=False)
     predictions.to_parquet(output / "held_out_predictions.parquet", index=False)
     joblib.dump(models, output / "models.joblib")
@@ -256,5 +305,10 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--root", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--config", type=Path, default=Path("config/retail_ead.yaml"))
+    p.add_argument(
+        "--dpd-threshold", type=int, default=None, help="Override the YAML delinquency threshold"
+    )
     a = p.parse_args()
-    run(a.root, a.output)
+    threshold, horizons = load_settings(a.config, a.dpd_threshold)
+    run(a.root, a.output, threshold, horizons, a.config)

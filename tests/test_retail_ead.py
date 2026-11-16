@@ -76,3 +76,21 @@ def test_audit_on_synthetic_original_schema(tmp_path):
     assert report["dictionary_semantics_reviewed"] is False
     with pytest.raises(FileExistsError):
         run(source, tmp_path / "output")
+
+
+def test_threshold_changes_the_first_event_date():
+    p = pd.DataFrame(
+        {
+            "account_id": ["synthetic"] * 6,
+            "month_index": [-6, -5, -4, -3, -2, -1],
+            "drawn_balance": [10.0, 20.0, 30.0, 40.0, 50.0, 60.0],
+            "credit_limit": [100.0] * 6,
+            "days_past_due": [0, 0, 0, 0, 60, 90],
+        }
+    )
+    at60 = proxy_pairs(p, (3,), dpd_threshold=60).iloc[0]
+    at90 = proxy_pairs(p, (3,), dpd_threshold=90).iloc[0]
+    assert at60.event_month == -2 and at60.anchor_balance == 20
+    assert at90.event_month == -1 and at90.anchor_balance == 30
+    assert at60.event_definition == "first_observed_60dpd_proxy"
+    assert proxy_pairs(p, (3,)).iloc[0].event_month == -2

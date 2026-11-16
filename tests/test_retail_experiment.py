@@ -56,3 +56,47 @@ def test_direct_prediction_needs_no_evaluation_target_and_stays_nonnegative():
     values = predict_direct(model, x)
     assert np.isfinite(values).all()
     assert values.ge(0).all()
+
+
+def test_config_threshold_and_explicit_override(tmp_path):
+    import pytest
+
+    from cre_expected_loss.retail_ead.experiment import load_settings
+
+    config = tmp_path / "retail.yaml"
+    config.write_text("default_proxy:\n  threshold_days: 60\nhorizons_months: [3, 6, 12]\n")
+    assert load_settings(config) == (60, (3, 6, 12))
+    assert load_settings(config, 90) == (90, (3, 6, 12))
+    with pytest.raises(ValueError):
+        load_settings(config, 0)
+    with pytest.raises(ValueError):
+        load_settings(config, True)
+
+
+def test_no_threshold_crossings_produce_a_valid_empty_run(tmp_path):
+    from cre_expected_loss.retail_ead.experiment import run
+
+    raw = tmp_path / "raw/home-credit-default-risk-2018"
+    raw.mkdir(parents=True)
+    pd.DataFrame(
+        {
+            "SK_ID_PREV": [1, 1],
+            "SK_ID_CURR": [2, 2],
+            "MONTHS_BALANCE": [-2, -1],
+            "AMT_BALANCE": [10.0, 20.0],
+            "AMT_CREDIT_LIMIT_ACTUAL": [100.0, 100.0],
+            "SK_DPD": [0, 0],
+            "SK_DPD_DEF": [0, 0],
+            "AMT_DRAWINGS_CURRENT": [1.0, 1.0],
+            "AMT_PAYMENT_TOTAL_CURRENT": [1.0, 1.0],
+        }
+    ).to_csv(raw / "credit_card_balance.csv", index=False)
+    (raw / "HomeCredit_columns_description.csv").write_text("synthetic_dictionary")
+    output = tmp_path / "output"
+    run(tmp_path, output, dpd_threshold=60)
+    import json
+
+    report = json.loads((output / "report.json").read_text())
+    assert report["delinquency_threshold_days"] == 60
+    assert all(d["event_accounts"] == 0 for d in report["definitions"])
+    assert report["reload_verified_held_out_horizon_cases"] == 0

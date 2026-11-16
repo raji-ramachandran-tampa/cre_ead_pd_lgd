@@ -14,7 +14,7 @@ def conversion_factor(balance, limit, ead):
     return float((ead - balance) / (limit - balance)) if limit > balance else float("nan")
 
 
-def proxy_pairs(monthly, horizons=(3, 6, 12), dpd_threshold=90):
+def proxy_pairs(monthly, horizons=(3, 6, 12), dpd_threshold=60):
     """Use first observed threshold crossing; exact current-status anchor.
 
     Account-relative months cannot establish calendar OOT splits. Every returned
@@ -93,4 +93,19 @@ def proxy_pairs(monthly, horizons=(3, 6, 12), dpd_threshold=90):
                         else "fully_drawn_or_overlimit"
                     )
             rows.append(record)
-    return pd.DataFrame(rows)
+    return pd.DataFrame(
+        rows,
+        columns=[
+            "account_id",
+            "event_month",
+            "horizon_months",
+            "eligibility",
+            "anchor_balance",
+            "anchor_limit",
+            "event_balance",
+            "event_limit",
+            "ccf",
+            "ccf_status",
+            "event_definition",
+        ],
+    )

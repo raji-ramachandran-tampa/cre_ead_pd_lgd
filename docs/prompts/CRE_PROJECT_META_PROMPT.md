@@ -346,8 +346,8 @@ On retail-ead-development only,read
 CRE_PROJECT_RESTART_PROMPT_2026-11-16_RETAIL_EAD.md for current work. This is a
 separate retail account-month project;default loan-property-quarter and CRE
 population assumptions do not apply to it. Preserve Fannie research on its own
-branch. Home Credit source/target feasibility is pending actual data and dictionary
-review;no fitted retail model. Application PD labels are not historical card EAD
+branch. Home Credit data have been audited and configurable delinquency-proxy benchmarks
+have been fitted;current threshold60days,material-default feasibility unresolved. Application PD labels are not historical card EAD
 labels. Preserve negative/above-one CCF and undefined fullydrawn cases explicitly.
 Do not invent calendar dates from relative months or pool retail evidence withCRE.
 

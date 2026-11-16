@@ -12,7 +12,7 @@ application_link_candidate: SK_ID_CURR
 default_proxy:
   status: proposed_not_verified_contractual_default
   field_candidate: SK_DPD
-  threshold_days: 90
+  threshold_days: 60
   event: first_observed_threshold_crossing
   left_censor_and_reporting_gaps: exclude_from_eligible_pairs_retain_flags
   application_TARGET_is_card_default: false
@@ -24,7 +24,7 @@ ccf:
   fully_drawn_or_overlimit: undefined_CCF_retain_EAD_case
 currency_and_balance_basis: pending_official_dictionary_review
 model_fitted: true
-model_scope: exploratory_raw_90dpd_proxy_only_not_validated_default
+model_scope: exploratory_delinquency_proxy_only_not_validated_default
 CRE_model_integration: false
 raw_or_loan_level_data_in_git: prohibited
 
@@ -38,8 +38,9 @@ source_audit:
   materiality_and_default_definition_review: pending
 
 proxy_test:
-  artifact: retail-ead-proxy-test-v0.1.0
-  fitted_horizons_months: [6, 12]
+  artifact: retail-ead-proxy-test-60dpd-v0.1.1
+  previous_90day_artifact: retail-ead-proxy-test-v0.1.0
+  fitted_horizons_months: [3, 6, 12]
   tolerance_adjusted_model: skipped_insufficient_sample
   primary_model_selected: false
   chronological_OOT_available: false

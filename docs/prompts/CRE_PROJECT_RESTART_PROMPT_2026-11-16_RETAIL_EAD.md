@@ -61,3 +61,22 @@ true-default data access. Source/CRE models unchanged;raw artifacts outsideGit.
 Verification November16:132 tests passed,five Pandoc skips;one existing pandas
 deprecation warning. New experiment/test lint passes. Source implementation hash
 verified against executed artifact;554heldout horizon predictions reload-match.
+
+## Current threshold60days — November 16, 2026
+
+User requested configurable threshold and60days. YAMLdefault_proxy.threshold_days
+60;CLI--dpd-threshold override;horizons loadYAML;helperdefault60. Source account
+selection,target construction,names/reports all use resolved setting. See
+retail_ead/configurable_60dpd_2026-11-16.md. Final external
+retail-ead-proxy-test-60dpd-v0.1.1 savesexactconfig/hash/effectivesettings;old90
+preserved and replayverified matchingoldcasecounts/MAE. Raw60accounts2192,
+tolerance60accounts114;eligible3/6/12month1787/1711/1640 versus51/43/43.
+Raw models fitted3horizons,1003heldout reloadverified. All tolerance fits skipped
+belowminimum60train/20test. Holdbetter3month,meanlimitratio betterthanregression
+6/12month. No selectedmodel/true-default claim;targets differfrom90days. Empty
+cohorts handled. Next60day materiality/balance-composition review;do not tune
+threshold or minimum gates to force results. CRE/paper unchanged.
+
+Verification:135 tests passed,five Pandoc-dependent skips;one existing pandas
+deprecation warning. Retail code/tests lint passes. Saved60day config/source
+hashes verified and1003heldout predictions reload-match.
